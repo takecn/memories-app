@@ -46,6 +46,7 @@ group :development do
   gem 'spring'
   gem 'rubocop-airbnb'
   gem 'i18n_generators'
+  gem 'bullet'
 end
 
 group :test do
