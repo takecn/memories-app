@@ -1,2 +1,29 @@
-<h1>Admin::Users#new</h1>
-<p>Find me in app/views/admin/users/new.html.erb</p>
+<h1>ユーザー登録</h1>
+
+<% if @user.errors.present? %>
+  <% @user.errors.full_messages.each do |error_message| %>
+    <ul>
+      <li><%= error_message %></li>
+    </ul>
+  <% end %>
+<% end %>
+
+<%= form_with model: [:admin, @user] do |f| %>
+  <div class="form-group">
+    <%= f.label :user_name, "ユーザー名" %>
+    <%= f.text_field :user_name, :class => "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :email, "メールアドレス" %>
+    <%= f.text_field :email, :class => "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :password, "パスワード" %>
+    <%= f.password_field :password, :class => "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :password_confirmation, "パスワード（確認）" %>
+    <%= f.password_field :password_confirmation, :class => "form-control" %>
+  </div>
+  <div><%= f.submit "登録する", :class => "btn btn-primary" %></div>
+<% end %>
