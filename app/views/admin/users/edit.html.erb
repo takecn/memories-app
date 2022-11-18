@@ -1,2 +1,42 @@
-<h1>Admin::Users#edit</h1>
-<p>Find me in app/views/admin/users/edit.html.erb</p>
+<h1>アカウント編集</h1>
+
+<%= form_with model: [:admin, @user] do |f| %>
+  <table class="table table-striped">
+    <!--
+    <tr>
+      <th><%= "アイコン" %></th>
+      <td><%=  %></td>
+    </tr>
+    -->
+    <tr>
+      <th><%= f.label :user_name, "ユーザー名" %></th>
+      <td><%= f.text_field :user_name %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :email, "メールアドレス" %></th>
+      <td><%= f.text_field :email %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :admin, "管理者権限（管理者のみ編集可能）" %></th>
+      <td><%= f.check_box :admin %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :admin, "ゲストログイン（管理者のみ編集可能）" %></th>
+      <td><%= f.check_box :guest %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :user_profile, "プロフィール" %></th>
+      <td><%= f.text_area :user_profile %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :password, "パスワード" %></th>
+      <td><%= f.password_field :password %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :password_confirmation, "パスワード（確認）" %></th>
+      <td><%= f.password_field :password_confirmation %></td>
+    </tr>
+  </table>
+  <%= f.submit "登録する", class: "btn btn-primary" %>
+  <%= link_to "戻る", admin_user_path(@user.id), class: "btn btn-primary" %>
+<% end %>
