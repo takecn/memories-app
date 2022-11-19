@@ -1,7 +1,5 @@
 <h1>ユーザー一覧</h1>
 
-<%= link_to "アカウント登録", new_admin_user_path, class: "nav justify-content-end nav-link" %>
-
 <table class="table table-striped">
   <thead class="thead-default">
     <tr>
@@ -21,7 +19,9 @@
         <td><%= I18n.localize user.created_at, format: :long %></td>
         <td><%= I18n.localize user.updated_at, format: :long %></td>
         <td><%= link_to "詳細", admin_user_path(user.id), class: "btn btn-primary mr-3" %></td>
-        <td><%= link_to "削除", admin_user_path(user.id), method: :delete, data: {confirm: "ユーザー「#{user.user_name}」を削除しますか？"}, class: "btn btn-primary mr-3" %></td>
+        <% if current_user.admin? %>
+          <td><%= link_to "削除", admin_user_path(user.id), method: :delete, data: {confirm: "ユーザー「#{user.user_name}」を削除しますか？"}, class: "btn btn-primary mr-3" %></td>
+        <% end %>
       </tr>
     <% end %>
   </tbody>
