@@ -1,3 +1,11 @@
+<% if @user.errors.present? %>
+  <% @user.errors.full_messages.each do |error_message| %>
+    <ul>
+      <li><%= error_message %></li>
+    </ul>
+  <% end %>
+<% end %>
+
 <h1>アカウント編集</h1>
 
 <%= form_with model: [:admin, @user] do |f| %>
@@ -16,25 +24,27 @@
       <th><%= f.label :email, "メールアドレス" %></th>
       <td><%= f.text_field :email %></td>
     </tr>
-    <tr>
-      <th><%= f.label :admin, "管理者権限（管理者のみ編集可能）" %></th>
-      <td><%= f.check_box :admin %></td>
-    </tr>
-    <tr>
-      <th><%= f.label :admin, "ゲストログイン（管理者のみ編集可能）" %></th>
-      <td><%= f.check_box :guest %></td>
-    </tr>
+    <% if current_user.admin? %>
+      <tr>
+        <th><%= f.label :admin, "管理者権限（管理者のみ編集可能）" %></th>
+        <td><%= f.check_box :admin %></td>
+      </tr>
+      <tr>
+        <th><%= f.label :admin, "ゲストログイン（管理者のみ編集可能）" %></th>
+        <td><%= f.check_box :guest %></td>
+      </tr>
+    <% end %>
     <tr>
       <th><%= f.label :user_profile, "プロフィール" %></th>
       <td><%= f.text_area :user_profile %></td>
     </tr>
     <tr>
       <th><%= f.label :password, "パスワード" %></th>
-      <td><%= f.password_field :password %></td>
+      <td><%= f.password_field :password, placeholder: "新しいパスワード" %></td>
     </tr>
     <tr>
       <th><%= f.label :password_confirmation, "パスワード（確認）" %></th>
-      <td><%= f.password_field :password_confirmation %></td>
+      <td><%= f.password_field :password_confirmation, placeholder: "新しいパスワード（確認）" %></td>
     </tr>
   </table>
   <%= f.submit "登録する", class: "btn btn-primary" %>
