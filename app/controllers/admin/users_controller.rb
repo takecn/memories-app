@@ -1,4 +1,7 @@
 class Admin::UsersController < ApplicationController
+  skip_before_action :login_required, only: [:new, :create]
+  before_action :require_current_user, only: :edit #! Notionにまとめる．自分だけが自分のアカウント編集をできる．「アカウント編集ぼたん」をviewに表示しないだけでは不十分．urlから画面遷移できるため．
+
   def index
     @users = User.all
   end
@@ -33,7 +36,7 @@ class Admin::UsersController < ApplicationController
       redirect_to admin_user_path(@user.id)
     else
       flash.now[:danger] = "アカウント更新できませんでした．"
-      render :show
+      render :edit
     end
   end
 
@@ -48,5 +51,10 @@ class Admin::UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:user_name, :email, :password, :password_confirmation, :user_profile, :admin, :guest)
+  end
+
+  def require_current_user
+    @user = User.find(params[:id])
+    redirect_to admin_user_path(@user.id) unless @user.id == current_user.id
   end
 end
