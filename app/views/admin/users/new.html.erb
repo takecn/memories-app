@@ -1,6 +1,12 @@
-<h1>ユーザー登録</h1>
+<% if @user.errors.present? %>
+  <% @user.errors.full_messages.each do |error_message| %>
+    <ul>
+      <li><%= error_message %></li>
+    </ul>
+  <% end %>
+<% end %>
 
-<%= link_to "ユーザー一覧", admin_users_path, class: "nav justify-content-end nav-link" %>
+<h1>ユーザー登録</h1>
 
 <%= form_with model: [:admin, @user] do |f| %>
   <div class="form-group">
