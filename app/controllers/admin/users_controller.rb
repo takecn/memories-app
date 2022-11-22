@@ -1,6 +1,6 @@
 class Admin::UsersController < ApplicationController
   skip_before_action :login_required, only: [:new, :create]
-  before_action :require_current_user, only: :edit #! Notionにまとめる．自分だけが自分のアカウント編集をできる．「アカウント編集ぼたん」をviewに表示しないだけでは不十分．urlから画面遷移できるため．
+  before_action :require_current_user_or_admin, only: :edit
 
   def index
     @users = User.all
@@ -53,8 +53,8 @@ class Admin::UsersController < ApplicationController
     params.require(:user).permit(:user_name, :email, :password, :password_confirmation, :user_profile, :admin, :guest)
   end
 
-  def require_current_user
+  def require_current_user_or_admin
     @user = User.find(params[:id])
-    redirect_to admin_user_path(@user.id) unless @user.id == current_user.id
+    redirect_to admin_user_path(@user.id) unless @user.id == current_user.id || current_user.admin?
   end
 end
