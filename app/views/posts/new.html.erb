@@ -22,20 +22,20 @@
     <%= f.date_field :memorized_on, class: "form-control" %>
   </div>
   <div class="form-group">
-    <%= f.label :location, "思い出のロケーション" %>
-    <%= f.text_field :location, default: Date.today, class: "form-control" %>
+    <%# <%= f.label :location, "思い出のロケーション" %> %>
+    <%# <%= f.text_field :location, default: Date.today, class: "form-control" %> %>
   </div>
   <div class="form-group">
-    <%= f.label :tags, "タグ（複数タグ付けは，単語間にスペースを入れる）" %>
-    <%= f.text_field :tags, class: "form-control" %>
+    <%# <%= f.label :tags, "タグ（複数タグ付けは，単語間にスペースを入れる）" %> %>
+    <%# <%= f.text_field :tags, class: "form-control" %> %>
   </div>
   <div class="form-group">
-    <%= f.label :disclosure_range, "公開範囲" %>
-    <%= f.collection_select :disclosure_range, @posts, :group_name, :group_name, {selected: "非公開"}, class: "form-control" %>
+    <%# <%= f.label :disclosure_range, "公開範囲" %> %>
+    <%# <%= f.collection_select :disclosure_range, @posts, :group_name, :group_name, {selected: "非公開"}, class: "form-control" %> %>
   </div>
   <div class="form-group">
-    <%= f.label :post_images, "思い出の画像" %>
-    <%= f.file_field :post_images, class: "form-control" %>
+    <%# <%= f.label :post_images, "思い出の画像" %> %>
+    <%# <%= f.file_field :post_images, class: "form-control" %> %>
   </div>
   <div class="form-group">
     <%= f.label :description, "詳細・補足" %>
