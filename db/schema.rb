@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_17_024217) do
+ActiveRecord::Schema.define(version: 2022_11_23_084631) do
+
+  create_table "posts", charset: "utf8mb3", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "map_id"
+    t.string "comment"
+    t.date "memorized_on"
+    t.string "disclosure_range"
+    t.text "description"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "users", charset: "utf8mb3", force: :cascade do |t|
     t.string "user_name", null: false
