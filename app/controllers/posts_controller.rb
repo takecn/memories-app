@@ -1,11 +1,14 @@
 class PostsController < ApplicationController
+  def index
+  end
+
   def new
     @post = Post.new
     @posts = Post.all
   end
 
   def create
-    @post = Post.new(post_params)
+    @post = Post.new(post_params.merge(user_id: current_user.id))
     if @post.save
       flash[:success] = "思い出を投稿しました．"
       redirect_to posts_path
@@ -15,13 +18,12 @@ class PostsController < ApplicationController
     end
   end
 
-  def edit
-  end
-
   def show
+    @post = Post.find(params[:id])
+    @user = @post.user
   end
 
-  def index
+  def edit
   end
 
   private

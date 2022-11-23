@@ -1,2 +1,64 @@
-<h1>Posts#show</h1>
-<p>Find me in app/views/posts/show.html.erb</p>
+<h1>投稿詳細</h1>
+
+<ul class="nav justify-content-center">
+  <li><%= link_to "ホームに戻る", posts_path, class: "btn btn-primary" %></li>
+  <% if @post.user_id == current_user.id%>
+    <li><%= link_to "投稿を削除する", post_path(@post.id), method: :delete, data: {confirm: "投稿を削除しますか？"}, class: "btn btn-primary" %></li>
+    <li><%= link_to "投稿を編集する", edit_post_path(@post.id), class: "btn btn-primary" %></li>
+  <% end %>
+</ul>
+
+<table class="table table-striped">
+  <%# <tr> %>
+    <%# <th><%= "ユーザー名" %></th> %>#!post_id=1~4を消すこと．destroyアクションを作成後．
+    <%# <td><%= @user.user_name %></td> %>
+  <%# </tr> %>
+  <tr>
+    <th><%= "投稿日時" %></th>
+    <td><%= I18n.localize @post.created_at, format: :long %></td>
+  </tr>
+  <tr>
+    <th><%= "更新日時" %></th>
+    <td><%= I18n.localize @post.updated_at, format: :long %></td>
+  </tr>
+  <tr>
+    <th><%= "コメント" %></th>
+    <td><%= @post.comment %></td>
+  </tr>
+  <tr>
+    <th><%= "思い出の日付" %></th>
+    <td><%= @post.memorized_on %></td>
+  </tr>
+  <%# <tr> %>
+    <%# <th><%= "思い出のロケーション" %></th> %>
+    <%# <td><%= @post.location %></td> %>
+  <%# </tr> %>
+  <%# <tr> %>
+    <%# <th><%= "タグ" %></th> %>
+    <%# <td><%= @post.tags %></td> %>
+  <%# </tr> %>
+  <tr>
+    <th><%= "公開範囲" %></th>
+    <td><%= @post.disclosure_range %></td>
+  </tr>
+  <%# <tr> %>
+    <%# <th><%= "思い出の画像" %></th> %>
+    <%# <td><%= @post.post_images %></td> %>
+  <%# </tr> %>
+  <tr>
+    <th><%= "詳細・補足" %></th>
+    <td><%= @post.description %></td>
+  </tr>
+  <tr>
+    <th><%= "お気に入り" %></th>
+    <td><%=  %></td>
+  </tr>
+  <tr>
+    <th><%= "ブックマーク" %></th>
+    <td><%=  %></td>
+  </tr>
+  <tr>
+    <th><%= "リプライ" %></th>
+    <td><%=  %></td>
+  </tr>
+</table>
