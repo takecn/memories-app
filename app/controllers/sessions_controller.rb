@@ -19,6 +19,13 @@ class SessionsController < ApplicationController
     end
   end
 
+  def guest_login
+    user = User.find_by(user_name: "guest1", email: "guest1@guest.com", guest: true)
+    session[:user_id] = user.id
+    flash[:success] = "「#{user.user_name}」でログインしました．"
+    redirect_to root_path
+  end
+
   def destroy
     reset_session
     flash[:success] = "ログアウトしました．"
