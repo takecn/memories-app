@@ -20,10 +20,23 @@ class SessionsController < ApplicationController
   end
 
   def guest_login
-    user = User.find_by(user_name: "guest1", email: "guest1@guest.com", guest: true)
-    session[:user_id] = user.id
-    flash[:success] = "「#{user.user_name}」でログインしました．"
-    redirect_to root_path
+    user = User.find_by(id: 25, user_name: "guest1", email: "guest1@guest.com", guest: true)
+    if user.present?
+      session[:user_id] = user.id
+      flash[:success] = "「#{user.user_name}」でログインしました．"
+      redirect_to root_path
+    else
+      password = SecureRandom.urlsafe_base64
+      user = User.new(id: 25, user_name: "guest1", email: "guest1@guest.com", guest: true, password: password, password_confirmation: password)
+      if user.save
+        session[:user_id] = user.id
+        flash[:success] = "「#{user.user_name}」でログインしました．"
+        redirect_to root_path
+      else
+        flash.now[:danger] = "ログインできませんでした．"
+        render :new
+      end
+    end
   end
 
   def destroy
