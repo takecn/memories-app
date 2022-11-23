@@ -6,4 +6,6 @@ class User < ApplicationRecord
     sign_up.validates :user_name, presence: true, uniqueness: true
     sign_up.validates :email, presence: true, uniqueness: true
   end
+
+  has_many :posts
 end
