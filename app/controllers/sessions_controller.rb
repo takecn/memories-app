@@ -30,11 +30,11 @@ class SessionsController < ApplicationController
       user = User.new(id: 25, user_name: "guest1", email: "guest1@guest.com", guest: true, password: password, password_confirmation: password)
       if user.save
         session[:user_id] = user.id
-        flash[:success] = "「#{user.user_name}」でログインしました．"
+        flash[:success] = "「#{user.user_name}」を作成しログインしました．"
         redirect_to root_path
       else
-        flash.now[:danger] = "ログインできませんでした．"
-        render :new
+        flash[:danger] = "ゲストユーザーを作成できませんでした．id, user_name, emailが既存アカウントと重複している可能性があります．"
+        redirect_to login_path
       end
     end
   end
