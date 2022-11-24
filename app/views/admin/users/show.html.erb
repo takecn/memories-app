@@ -1,11 +1,17 @@
 <h1>アカウント詳細</h1>
 
-<% if current_user.guest? %>
-<% elsif @user.id == current_user.id || current_user.admin? %>
+<% if current_user.admin? %>
   <ul class="nav justify-content-end">
     <li><%= link_to "アカウント編集", edit_admin_user_path(@user.id), class: "nav-link" %></li>
     <li><%= link_to "アカウント削除", admin_user_path(@user.id), method: :delete, data: {confirm: "ユーザー「#{@user.user_name}」を削除しますか？"}, class: "nav-link" %></li>
   </ul>
+<% elsif current_user.guest? %>
+<% else %>
+  <% if @user.id == current_user.id %>
+    <ul class="nav justify-content-end">
+      <li><%= link_to "アカウント編集", edit_admin_user_path(@user.id), class: "nav-link" %></li>
+    </ul>
+  <% end %>
 <% end %>
 
 <table class="table table-striped">

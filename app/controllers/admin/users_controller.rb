@@ -1,6 +1,6 @@
 class Admin::UsersController < ApplicationController
   skip_before_action :login_required, only: [:new, :create]
-  before_action :require_current_user_or_admin_or_not_guest, only: :edit
+  before_action :edit_or_delete_permission_required, only: [:edit, :destroy]
 
   def index
     @users = User.all
@@ -53,13 +53,13 @@ class Admin::UsersController < ApplicationController
     params.require(:user).permit(:user_name, :email, :password, :password_confirmation, :user_profile, :admin, :guest)
   end
 
-  def require_current_user_or_admin_or_not_guest
+  def edit_or_delete_permission_required
     @user = User.find(params[:id])
-    if current_user.guest?
+    if current_user.admin?
+    elsif current_user.guest?
       redirect_to admin_user_path(@user.id)
-    elsif @user.id == current_user.id || current_user.admin?
     else
-      redirect_to admin_user_path(@user.id)
+      redirect_to admin_user_path(@user.id) unless @user.id == current_user.id
     end
   end
 end

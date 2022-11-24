@@ -10,22 +10,43 @@
 
 <%= form_with model: [:admin, @user] do |f| %>
   <table class="table table-striped">
-    <% if @user.id == current_user.id || ( @user.guest? && current_user.admin? )%>
-      <!--
-      <tr>
-        <th><%= "アイコン" %></th>
-        <td><%=  %></td>
-      </tr>
-      -->
-      <tr>
-        <th><%= f.label :user_name, "ユーザー名" %></th>
-        <td><%= f.text_field :user_name %></td>
-      </tr>
-      <tr>
-        <th><%= f.label :email, "メールアドレス" %></th>
-        <td><%= f.text_field :email %></td>
-      </tr>
-      <% if current_user.admin? %>
+    <% if current_user.admin? %>
+      <% if @user.id == current_user.id %>
+        <!--
+        <tr>
+          <th><%= "アイコン" %></th>
+          <td><%=  %></td>
+        </tr>
+        -->
+        <tr>
+          <th><%= f.label :user_name, "ユーザー名" %></th>
+          <td><%= f.text_field :user_name %></td>
+        </tr>
+        <tr>
+          <th><%= f.label :email, "メールアドレス" %></th>
+          <td><%= f.text_field :email %></td>
+        </tr>
+        <tr>
+          <th><%= f.label :admin, "管理者権限（管理者のみ編集可能）" %></th>
+          <td><%= f.check_box :admin %></td>
+        </tr>
+        <tr>
+          <th><%= f.label :admin, "ゲストログイン（管理者のみ編集可能）" %></th>
+          <td><%= f.check_box :guest %></td>
+        </tr>
+        <tr>
+          <th><%= f.label :user_profile, "プロフィール" %></th>
+          <td><%= f.text_area :user_profile %></td>
+        </tr>
+        <tr>
+          <th><%= f.label :password, "パスワード" %></th>
+          <td><%= f.password_field :password, placeholder: "新しいパスワード" %></td>
+        </tr>
+        <tr>
+          <th><%= f.label :password_confirmation, "パスワード（確認）" %></th>
+          <td><%= f.password_field :password_confirmation, placeholder: "新しいパスワード（確認）" %></td>
+        </tr>
+      <% else %>
         <tr>
           <th><%= f.label :admin, "管理者権限（管理者のみ編集可能）" %></th>
           <td><%= f.check_box :admin %></td>
@@ -35,31 +56,38 @@
           <td><%= f.check_box :guest %></td>
         </tr>
       <% end %>
-      <tr>
-        <th><%= f.label :user_profile, "プロフィール" %></th>
-        <td><%= f.text_area :user_profile %></td>
-      </tr>
-      <tr>
-        <th><%= f.label :password, "パスワード" %></th>
-        <td><%= f.password_field :password, placeholder: "新しいパスワード" %></td>
-      </tr>
-      <tr>
-        <th><%= f.label :password_confirmation, "パスワード（確認）" %></th>
-        <td><%= f.password_field :password_confirmation, placeholder: "新しいパスワード（確認）" %></td>
-      </tr>
-    <% elsif current_user.admin? %>
-      <table class="table table-striped">
+    <% elsif current_user.guest? %>
+    <% else %>
+      <% if @user.id == current_user.id %>
+        <!--
         <tr>
-          <th><%= f.label :admin, "管理者権限（管理者のみ編集可能）" %></th>
-          <td><%= f.check_box :admin %></td>
+          <th><%= "アイコン" %></th>
+          <td><%=  %></td>
+        </tr>
+        -->
+        <tr>
+          <th><%= f.label :user_name, "ユーザー名" %></th>
+          <td><%= f.text_field :user_name %></td>
         </tr>
         <tr>
-          <th><%= f.label :admin, "ゲストログイン（管理者のみ編集可能）" %></th>
-          <td><%= f.check_box :guest %></td>
+          <th><%= f.label :email, "メールアドレス" %></th>
+          <td><%= f.text_field :email %></td>
         </tr>
-      </table>
+        <tr>
+          <th><%= f.label :user_profile, "プロフィール" %></th>
+          <td><%= f.text_area :user_profile %></td>
+        </tr>
+        <tr>
+          <th><%= f.label :password, "パスワード" %></th>
+          <td><%= f.password_field :password, placeholder: "新しいパスワード" %></td>
+        </tr>
+        <tr>
+          <th><%= f.label :password_confirmation, "パスワード（確認）" %></th>
+          <td><%= f.password_field :password_confirmation, placeholder: "新しいパスワード（確認）" %></td>
+        </tr>
+      <% end %>
     <% end %>
   </table>
-  <%= f.submit "登録する", class: "btn btn-primary" %>
+  <%= f.submit "更新する", class: "btn btn-primary" %>
   <%= link_to "戻る", admin_user_path(@user.id), class: "btn btn-primary" %>
 <% end %>
