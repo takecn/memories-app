@@ -3,6 +3,7 @@ class PostsController < ApplicationController
   before_action :delete_permission_required, only: :destroy
 
   def index
+    @posts = Post.all.eager_load(:user)
   end
 
   def new
