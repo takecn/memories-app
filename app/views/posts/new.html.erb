@@ -11,7 +11,7 @@
 <%= form_with model: @post do |f| %>
   <ul class="nav justify-content-center">
     <li><%= link_to "ホームに戻る", posts_path, class: "btn btn-primary" %></li>
-    <li><%= f.submit "登録する", class: "btn btn-primary" %></li>
+    <li><%= f.submit "投稿する", class: "btn btn-primary" %></li>
   </ul>
   <div class="form-group">
     <%= f.label :comment, "コメント" %>
