@@ -63,6 +63,9 @@ class PostsController < ApplicationController
 
   def delete_permission_required
     @post = Post.find(params[:id])
-    redirect_to post_path(@post.id) unless @post.user_id == current_user.id || current_user.admin?
+    if @post.user_id == current_user.id || current_user.admin?
+    else
+      redirect_to post_path(@post.id)
+    end
   end
 end
