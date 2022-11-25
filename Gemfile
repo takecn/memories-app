@@ -47,6 +47,7 @@ group :development do
   gem 'rubocop-airbnb'
   gem 'i18n_generators'
   gem 'bullet'
+  gem 'pre-commit'
 end
 
 group :test do

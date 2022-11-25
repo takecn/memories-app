@@ -133,7 +133,10 @@ GEM
     parallel (1.22.1)
     parser (3.1.2.1)
       ast (~> 2.4.1)
+    pluginator (1.5.0)
     popper_js (2.11.6)
+    pre-commit (0.39.0)
+      pluginator (~> 1.5)
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -299,6 +302,7 @@ DEPENDENCIES
   jbuilder (~> 2.7)
   listen (~> 3.3)
   mysql2 (~> 0.5)
+  pre-commit
   pry-rails
   puma (~> 5.0)
   rack-mini-profiler (~> 2.0)
