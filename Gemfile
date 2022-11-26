@@ -63,3 +63,6 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'bootstrap'
 gem 'pry-rails'
+gem 'mini_magick'
+gem 'image_processing', '>= 1.2'
+gem 'aws-sdk-s3', require: false
