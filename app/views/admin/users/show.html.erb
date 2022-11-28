@@ -15,12 +15,10 @@
 <% end %>
 
 <table class="table table-striped">
-  <!--
   <tr>
     <th><%= "アイコン" %></th>
-    <td><%=  %></td>
+    <td><%= image_tag @user.user_avatar.variant(resize:'200x200') if @user.user_avatar.attached? %></td>
   </tr>
-  -->
   <tr>
     <th><%= "ユーザー名" %></th>
     <td><%= @user.user_name %></td>

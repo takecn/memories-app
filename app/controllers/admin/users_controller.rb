@@ -50,7 +50,7 @@ class Admin::UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:user_name, :email, :password, :password_confirmation, :user_profile, :admin, :guest)
+    params.require(:user).permit(:user_name, :email, :password, :password_confirmation, :user_profile, :admin, :guest, :user_avatar)
   end
 
   def edit_or_delete_permission_required

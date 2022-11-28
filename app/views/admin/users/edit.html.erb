@@ -12,12 +12,10 @@
   <table class="table table-striped">
     <% if current_user.admin? %>
       <% if @user.id == current_user.id %>
-        <!--
         <tr>
-          <th><%= "アイコン" %></th>
-          <td><%=  %></td>
+          <th><%= f.label :user_avatar, "アイコン" %></th>
+          <td><%= f.file_field :user_avatar, accept: "image/jpeg,image/gif,image/png" %></td>
         </tr>
-        -->
         <tr>
           <th><%= f.label :user_name, "ユーザー名" %></th>
           <td><%= f.text_field :user_name %></td>
@@ -59,12 +57,10 @@
     <% elsif current_user.guest? %>
     <% else %>
       <% if @user.id == current_user.id %>
-        <!--
         <tr>
-          <th><%= "アイコン" %></th>
-          <td><%=  %></td>
+          <th><%= f.label :user_avatar, "アイコン" %></th>
+          <td><%= f.file_field :user_avatar, accept: "image/jpeg,image/gif,image/png" %></td>
         </tr>
-        -->
         <tr>
           <th><%= f.label :user_name, "ユーザー名" %></th>
           <td><%= f.text_field :user_name %></td>
