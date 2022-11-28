@@ -2,7 +2,7 @@ class PostsController < ApplicationController
   before_action :edit_permission_required, only: :edit
   before_action :delete_permission_required, only: :destroy
 
-  def index
+  def home
     @posts = Post.all.eager_load(:user)
   end
 

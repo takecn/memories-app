@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  root to: "admin/users#index"
+  root to: "posts#home"
   get "/login", to: "sessions#new"
   post "/login", to: "sessions#create"
   post "/guest_login", to: "sessions#guest_login"
@@ -8,4 +8,5 @@ Rails.application.routes.draw do
     resources :users
   end
   resources :posts
+  get "/home", to: "posts#home"
 end
