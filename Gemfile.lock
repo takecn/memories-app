@@ -39,6 +39,11 @@ GEM
       erubi (~> 1.4)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.1, >= 1.2.0)
+    active_storage_validations (1.0.3)
+      activejob (>= 5.2.0)
+      activemodel (>= 5.2.0)
+      activestorage (>= 5.2.0)
+      activesupport (>= 5.2.0)
     activejob (6.1.7)
       activesupport (= 6.1.7)
       globalid (>= 0.3.6)
@@ -108,6 +113,10 @@ GEM
     concurrent-ruby (1.1.10)
     crass (1.0.6)
     diff-lcs (1.5.0)
+    dotenv (2.8.1)
+    dotenv-rails (2.8.1)
+      dotenv (= 2.8.1)
+      railties (>= 3.2)
     erubi (1.11.0)
     execjs (2.8.1)
     factory_bot (6.2.1)
@@ -314,6 +323,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  active_storage_validations
   aws-sdk-s3
   bcrypt (~> 3.1.7)
   bootsnap (>= 1.4.4)
@@ -321,6 +331,7 @@ DEPENDENCIES
   bullet
   byebug
   capybara (>= 3.26)
+  dotenv-rails
   factory_bot_rails
   i18n_generators
   image_processing (>= 1.2)
