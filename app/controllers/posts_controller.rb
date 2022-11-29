@@ -6,6 +6,10 @@ class PostsController < ApplicationController
     @posts = Post.eager_load(:user).preload(post_images_attachments: :blob)
   end
 
+  def index
+    @posts = Post.eager_load(:user).preload(post_images_attachments: :blob)
+  end
+
   def new
     @post = Post.new
     @posts = Post.all

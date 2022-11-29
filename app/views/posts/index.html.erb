@@ -1,0 +1,37 @@
+<div class="row">
+  <% @posts.each do |post| %>
+    <% if post.post_images.attached? %>
+      <% post.post_images.each do |post_image| %>
+        <div class="col-md-6 col-xl-4">
+          <small class="card">
+            <div class="card-header">
+              <p class="card-title"><%= post.user.user_name %></p>
+              <p class="card-text">
+                <p class="text-muted">
+                  <%= "投稿：#{I18n.localize post.created_at, format: :long}" %>
+                  <%= "更新：#{I18n.localize post.updated_at, format: :long}" %>
+                </p>
+              </p>
+            </div>
+            <%= image_tag post_image, class: "img-fluid" %>
+            <div class="card-body">
+              <p class="card-text"><%= post.comment %></p>
+              <p class="card-text"><%= "思い出の日付：#{post.memorized_on}" %></p>
+              <%# <p class="card-text"><%= post.location %></p> 思い出のロケーション%>
+              <%# <p class="card-text"><%= post.tags %></p> タグ%>
+              <p class="card-text"><%= "公開範囲：#{post.disclosure_range}" %></p>
+            </div>
+            <div class="card-footer">
+              <p class="card-text">
+                <%= "お気に入り" %>
+                <%= "ブックマーク" %>
+                <%= "リプライ有無" %>
+                <%= link_to "投稿詳細", post_path(post.id), class: "card-link" %>
+              </p>
+            </div>
+          </small>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
