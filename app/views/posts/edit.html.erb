@@ -10,7 +10,7 @@
 
 <%= form_with model: @post do |f| %>
   <ul class="nav justify-content-center">
-    <li><%= link_to "ホームに戻る", posts_path, class: "btn btn-primary" %></li>
+    <li><%= link_to "ホームに戻る", home_path, class: "btn btn-primary" %></li>
     <li><%= f.submit "投稿を更新する", class: "btn btn-primary" %></li>
     <li><%= link_to "投稿詳細画面に戻る", post_path(@post.id), class: "btn btn-primary" %></li>
     <li><%= link_to "投稿を削除する", post_path(@post.id), method: :delete, data: {confirm: "投稿を削除しますか？"}, class: "btn btn-primary" %></li>
@@ -48,10 +48,10 @@
       <%# <th><%= f.label :disclosure_range, "公開範囲" %></th> %>
       <%# <td><%= f.collection_select :disclosure_range, @posts, :group_name, :group_name, {selected: "非公開"}, class: "form-control" %></td> %>
     <%# </tr> %>
-    <%# <tr> %>
-      <%# <th><%= f.label :post_images, "思い出の画像" %></th> %>
-      <%# <td><%= f.file_field :post_images, class: "form-control" %></td> %>
-    <%# </tr> %>
+    <tr>
+      <th><%= f.label :post_images, "思い出の画像" %></th>
+      <td><%= f.file_field :post_images, multiple: true, class: "form-control", accept: "image/jpeg,image/gif,image/png" %></td>
+    </tr>
     <tr>
       <th><%= f.label :description, "詳細・補足" %></th>
       <td><%= f.text_area :description, class: "form-control" %></td>

@@ -1,7 +1,7 @@
 <h1>投稿詳細</h1>
 
 <ul class="nav justify-content-center">
-  <li><%= link_to "ホームに戻る", posts_path, class: "btn btn-primary" %></li>
+  <li><%= link_to "ホームに戻る", home_path, class: "btn btn-primary" %></li>
   <% if @post.user_id == current_user.id %>
     <li><%= link_to "投稿を編集する", edit_post_path(@post.id), class: "btn btn-primary" %></li>
     <li><%= link_to "投稿を削除する", post_path(@post.id), method: :delete, data: {confirm: "投稿を削除しますか？"}, class: "btn btn-primary" %></li>
@@ -43,10 +43,18 @@
     <th><%= "公開範囲" %></th>
     <td><%= @post.disclosure_range %></td>
   </tr>
-  <%# <tr> %>
-    <%# <th><%= "思い出の画像" %></th> %>
-    <%# <td><%= @post.post_images %></td> %>
-  <%# </tr> %>
+  <tr>
+    <th><%= "思い出の画像" %></th>
+    <td>
+      <div class="col-md-4 img-fluid">
+        <% if @post.post_images.attached? %>
+          <% @post.post_images.each do |post_image| %>
+            <%= image_tag post_image.variant(resize:'200x200') %>
+          <% end %>
+        <% end %>
+      </div>
+    </td>
+  </tr>
   <tr>
     <th><%= "詳細・補足" %></th>
     <td><%= @post.description %></td>

@@ -3,9 +3,12 @@
 <% @posts.each do |post| %>
   <div class="card mb-3" style="max-width: 540px;">
     <div class="row g-0">
-      <div class="col-md-4">
-        <img src="..." alt="...">
-        <%# <p class="card-text"><%= post.post_images %></p> %>
+      <div class="col-md-4 img-fluid">
+        <% if post.post_images.attached? %>
+          <% post.post_images.each do |post_image| %>
+            <%= image_tag post_image.variant(resize:'100x100') %>
+          <% end %>
+        <% end %>
       </div>
       <div class="col-md-8">
         <div class="card-header">
