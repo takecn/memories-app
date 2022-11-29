@@ -27,7 +27,7 @@
           <%= link_to "ユーザーアイコン", admin_user_path(current_user.id), class: "nav-link link-info" %>
         </li>
         <li class="nav-item">
-          <%= link_to admin_user_path(current_user.id), class: "nav-link link-info" do %>
+          <%= link_to home_path, class: "nav-link link-info" do %>
             <%= image_tag "home.png", size: "32x32", class: "me-2" %>
             <strong>ホーム</strong>
           <% end %>
