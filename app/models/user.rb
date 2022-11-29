@@ -2,6 +2,7 @@ class User < ApplicationRecord
   has_secure_password
   has_one_attached :user_avatar
   has_many :posts
+  has_many :favorites, dependent: :destroy
 
   validates :user_avatar, content_type: { in: %w(image/jpeg image/gif image/png), message: "のファイル形式は，JPEG, GIF, PNGのみ添付可能です．" },
                           size: { less_than: 5.megabytes, message: "のデータ容量は5MB以下として下さい．" }
