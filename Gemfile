@@ -62,9 +62,11 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'bootstrap'
+
 gem 'pry-rails'
 gem 'mini_magick'
 gem 'image_processing', '>= 1.2'
 gem 'aws-sdk-s3', require: false
 gem 'dotenv-rails'
 gem 'active_storage_validations'
+gem 'font-awesome-sass'
