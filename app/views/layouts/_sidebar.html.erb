@@ -11,7 +11,7 @@
           <%= link_to "ゲストログイン", guest_login_path, method: :post %>
         </li>
         <li class="nav-item">
-          <%= link_to admin_user_path(current_user.id), class: "nav-link link-info" do %>
+          <%= link_to login_path, class: "nav-link link-info" do %>
             <%= image_tag "login.png", size: "32x32", class: "me-2" %>
             <strong>ログイン</strong>
           <% end %>
