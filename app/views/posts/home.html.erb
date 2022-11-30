@@ -29,7 +29,7 @@
         </div>
         <div class="card-footer">
           <p class="card-text">
-            <% if Favorite.exists?(user_id: current_user.id, post_id: post.id) %>
+            <% if post.favorited_by?(current_user) %>
               <%= link_to post_favorites_path(post.id), method: :delete do %>
                 <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: red;"></i><%= post.favorites.size %>
               <% end %>
