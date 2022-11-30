@@ -69,14 +69,24 @@
         <% end %>
       <% else %>
         <%= link_to post_favorites_path(@post.id), method: :post do %>
-          <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true"></i><%= @post.favorites.size %>
+          <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: gray;"></i><%= @post.favorites.size %>
         <% end %>
       <% end %>
     </td>
   </tr>
   <tr>
     <th><%= "ブックマーク" %></th>
-    <td><%=  %></td>
+    <td>
+      <% if @post.bookmarked_by?(current_user) %>
+        <%= link_to post_bookmarks_path(@post.id), method: :delete do %>
+          <i class="fa fa-bookmark fa-lg fa-fw" aria-hidden="true" style="color: blue;"></i>
+        <% end %>
+      <% else %>
+        <%= link_to post_bookmarks_path(@post.id), method: :post do %>
+          <i class="fa fa-bookmark fa-lg fa-fw" aria-hidden="true" style="color: gray;"></i>
+        <% end %>
+      <% end %>
+    </td>
   </tr>
   <tr>
     <th><%= "リプライ" %></th>

@@ -22,20 +22,28 @@
               <p class="card-text"><%= "公開範囲：#{post.disclosure_range}" %></p>
             </div>
             <div class="card-footer">
-              <p class="card-text">
+              <div class="card-text">
                 <% if post.favorited_by?(current_user) %>
                   <%= link_to post_favorites_path(post.id), method: :delete do %>
                     <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: red;"></i><%= post.favorites.size %>
                   <% end %>
                 <% else %>
                   <%= link_to post_favorites_path(post.id), method: :post do %>
-                    <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true"></i><%= post.favorites.size %>
+                    <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: gray;"></i><%= post.favorites.size %>
                   <% end %>
                 <% end %>
-                <%= "ブックマーク" %>
+                <% if post.bookmarked_by?(current_user) %>
+                  <%= link_to post_bookmarks_path(post.id), method: :delete do %>
+                    <i class="fa fa-bookmark fa-lg fa-fw" aria-hidden="true" style="color: blue;"></i>
+                  <% end %>
+                <% else %>
+                  <%= link_to post_bookmarks_path(post.id), method: :post do %>
+                    <i class="fa fa-bookmark fa-lg fa-fw" aria-hidden="true" style="color: gray;"></i>
+                  <% end %>
+                <% end %>
                 <%= "リプライ有無" %>
-                <%= link_to "投稿詳細", post_path(post.id), class: "card-link" %>
-              </p>
+                <%= link_to "投稿詳細", post_path(post.id), class: "card-link link-info text-decoration-none" %>
+              </div>
             </div>
           </small>
         </div>
