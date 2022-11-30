@@ -12,7 +12,6 @@ class PostsController < ApplicationController
 
   def new
     @post = Post.new
-    @posts = Post.all
   end
 
   def create
@@ -28,12 +27,10 @@ class PostsController < ApplicationController
 
   def show
     @post = Post.preload(post_images_attachments: :blob).find(params[:id])
-    @user = @post.user
   end
 
   def edit
     @post = Post.find(params[:id])
-    @user = @post.user
   end
 
   def update
