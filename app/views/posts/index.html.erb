@@ -23,7 +23,15 @@
             </div>
             <div class="card-footer">
               <p class="card-text">
-                <%= "お気に入り" %>
+                <% if Favorite.exists?(user_id: current_user.id, post_id: post.id) %>
+                  <%= link_to post_favorites_path(post.id), method: :delete do %>
+                    <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: red;"></i><%= post.favorites.size %>
+                  <% end %>
+                <% else %>
+                  <%= link_to post_favorites_path(post.id), method: :post do %>
+                    <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true"></i><%= post.favorites.size %>
+                  <% end %>
+                <% end %>
                 <%= "ブックマーク" %>
                 <%= "リプライ有無" %>
                 <%= link_to "投稿詳細", post_path(post.id), class: "card-link" %>

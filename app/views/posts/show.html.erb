@@ -2,6 +2,7 @@
 
 <ul class="nav justify-content-center">
   <li><%= link_to "ホームに戻る", home_path, class: "btn btn-primary" %></li>
+  <li><%= link_to "画像一覧へ戻る", posts_path, class: "btn btn-primary" %></li>
   <% if @post.user_id == current_user.id %>
     <li><%= link_to "投稿を編集する", edit_post_path(@post.id), class: "btn btn-primary" %></li>
     <li><%= link_to "投稿を削除する", post_path(@post.id), method: :delete, data: {confirm: "投稿を削除しますか？"}, class: "btn btn-primary" %></li>
@@ -61,7 +62,17 @@
   </tr>
   <tr>
     <th><%= "お気に入り" %></th>
-    <td><%=  %></td>
+    <td>
+      <% if Favorite.exists?(user_id: current_user.id, post_id: @post.id) %>
+        <%= link_to post_favorites_path(@post.id), method: :delete do %>
+          <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: red;"></i><%= @post.favorites.size %>
+        <% end %>
+      <% else %>
+        <%= link_to post_favorites_path(@post.id), method: :post do %>
+          <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true"></i><%= @post.favorites.size %>
+        <% end %>
+      <% end %>
+    </td>
   </tr>
   <tr>
     <th><%= "ブックマーク" %></th>
