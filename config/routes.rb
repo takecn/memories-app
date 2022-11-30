@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'bookmarks/create'
+  get 'bookmarks/destroy'
   root to: "posts#home"
 
   get "/login", to: "sessions#new"
