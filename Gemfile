@@ -70,3 +70,4 @@ gem 'aws-sdk-s3', require: false
 gem 'dotenv-rails'
 gem 'active_storage_validations'
 gem 'font-awesome-sass'
+gem 'counter_culture'
