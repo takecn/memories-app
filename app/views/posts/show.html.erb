@@ -36,10 +36,14 @@
     <%# <th><%= "思い出のロケーション" %></th> %>
     <%# <td><%= @post.location %></td> %>
   <%# </tr> %>
-  <%# <tr> %>
-    <%# <th><%= "タグ" %></th> %>
-    <%# <td><%= @post.tags %></td> %>
-  <%# </tr> %>
+  <tr>
+    <th><%= "タグ" %></th>
+    <td>
+      <% @post.tags.distinct.each do |tag| %>
+        <span class="bg-info bg-opacity-75 border border-dark rounded"><%= tag.tag_name %></span>
+      <% end %>
+    </td>
+  </tr>
   <tr>
     <th><%= "公開範囲" %></th>
     <td><%= @post.disclosure_range %></td>

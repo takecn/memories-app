@@ -24,7 +24,11 @@
           <p class="card-text"><%= post.comment %></p>
           <p class="card-text"><%= "思い出の日付：#{post.memorized_on}" %></p>
           <%# <p class="card-text"><%= post.location %></p> 思い出のロケーション%>
-          <%# <p class="card-text"><%= post.tags %></p> タグ%>
+          <p class="card-text">タグ：
+            <% post.tags.distinct.each do |tag| %>
+              <span class="bg-info bg-opacity-75 border border-dark rounded"><%= tag.tag_name %></span>
+            <% end %>
+          </p>
           <p class="card-text"><%= "公開範囲：#{post.disclosure_range}" %></p>
         </div>
         <div class="card-footer">
@@ -49,6 +53,7 @@
             <% end %>
             <%= "リプライ有無" %>
             <%= link_to "投稿詳細", post_path(post.id), class: "card-link link-info text-decoration-none" %>
+            <%= link_to "削除", post_path(post.id), method: :delete, class: "card-link link-danger text-decoration-none" %>
           </div>
         </div>
       </div>
