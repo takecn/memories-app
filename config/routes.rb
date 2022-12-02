@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'replies/create'
+  get 'replies/destroy'
   root to: "posts#home"
 
   get "/login", to: "sessions#new"
