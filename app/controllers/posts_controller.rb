@@ -15,7 +15,7 @@ class PostsController < ApplicationController
   end
 
   def create
-    @post = Post.new(post_params.merge(user_id: current_user.id))
+    @post = current_user.post.new(post_params)
     if @post.save
       entered_tags = params[:post][:tag_name].split(/[,| |、|　]/)
       @post.create_tags(entered_tags)
