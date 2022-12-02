@@ -107,12 +107,13 @@
 <% @replies.each do |reply| %>
   <% if reply.user_id == current_user.id %>
     <div class="text-end border-top border-dark">
-      <p><%= reply.user.user_name %></p>
+      <%= reply.user.user_name %>
+      <%= link_to "リプライ削除", post_reply_path(@post.id, reply.id), method: :delete, data: {confirm: "リプライを削除しますか？"},class: "card-link link-info text-decoration-none" %>
       <p class="bg-warning bg-opacity-50"><%= reply.reply %></p>
     </div>
   <% else %>
     <div class="border-top border-dark">
-      <p><%= reply.user.user_name %></p>
+      <%= reply.user.user_name %>
       <p class="bg-secondary bg-opacity-25"><%= reply.reply %></p>
     </div>
   <% end %>

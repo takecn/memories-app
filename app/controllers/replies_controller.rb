@@ -6,7 +6,7 @@ class RepliesController < ApplicationController
   end
 
   def destroy
-    @reply = Reply.create(reply_params)
+    @reply = Reply.find(params[:id])
     @reply.destroy
     flash[:warning] = "リプライを削除しました．"
     redirect_to request.referer
