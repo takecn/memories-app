@@ -29,6 +29,8 @@ class PostsController < ApplicationController
 
   def show
     @post = Post.preload(post_images_attachments: :blob).find(params[:id])
+    @reply = Reply.new
+    @replies = @post.replies.eager_load(:user)
   end
 
   def edit

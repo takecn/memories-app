@@ -52,8 +52,7 @@
               <% end %>
             <% end %>
             <%= "リプライ有無" %>
-            <%= link_to "投稿詳細", post_path(post.id), class: "card-link link-info text-decoration-none" %>
-            <%= link_to "削除", post_path(post.id), method: :delete, class: "card-link link-danger text-decoration-none" %>
+            <%= link_to "投稿詳細/リプライ(#{post.replies.size})", post_path(post.id), class: "card-link link-info text-decoration-none" %>
           </div>
         </div>
       </div>

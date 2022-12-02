@@ -92,8 +92,28 @@
       <% end %>
     </td>
   </tr>
-  <tr>
-    <th><%= "リプライ" %></th>
-    <td><%=  %></td>
-  </tr>
 </table>
+
+<br>
+
+<%= form_with model: [@post, @reply] do |f| %>
+  <%= f.label :reply, "リプライ" %>
+  <%= f.text_area :reply, class: "form-control" %>
+  <%= f.submit "リプライする", class: "btn btn-primary" %>
+<% end %>
+
+<br>
+
+<% @replies.each do |reply| %>
+  <% if reply.user_id == current_user.id %>
+    <div class="text-end border-top border-dark">
+      <p><%= reply.user.user_name %></p>
+      <p class="bg-warning bg-opacity-50"><%= reply.reply %></p>
+    </div>
+  <% else %>
+    <div class="border-top border-dark">
+      <p><%= reply.user.user_name %></p>
+      <p class="bg-secondary bg-opacity-25"><%= reply.reply %></p>
+    </div>
+  <% end %>
+<% end %>

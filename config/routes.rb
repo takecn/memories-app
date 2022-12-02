@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-  get 'replies/create'
-  get 'replies/destroy'
   root to: "posts#home"
 
   get "/login", to: "sessions#new"
@@ -17,5 +15,6 @@ Rails.application.routes.draw do
   resources :posts do
     resource :favorites, only: [:create, :destroy]
     resource :bookmarks, only: [:create, :destroy]
+    resource :replies, only: [:create, :destroy]
   end
 end
