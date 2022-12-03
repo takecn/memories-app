@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  get 'group_users/create'
+  get 'group_users/destroy'
+  get 'group_users/join'
+  get 'groups/index'
+  get 'groups/new'
+  get 'groups/show'
+  get 'groups/edit'
   root to: "posts#home"
 
   get "/login", to: "sessions#new"
