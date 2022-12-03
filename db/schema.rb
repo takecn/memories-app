@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_03_043212) do
+ActiveRecord::Schema.define(version: 2022_12_03_135248) do
 
   create_table "active_storage_attachments", charset: "utf8mb3", force: :cascade do |t|
     t.string "name", null: false
@@ -57,7 +57,7 @@ ActiveRecord::Schema.define(version: 2022_12_03_043212) do
   create_table "group_users", charset: "utf8mb3", force: :cascade do |t|
     t.integer "user_id"
     t.integer "group_id"
-    t.boolean "accepted"
+    t.boolean "accepted", default: false, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -65,14 +65,6 @@ ActiveRecord::Schema.define(version: 2022_12_03_043212) do
   create_table "groups", charset: "utf8mb3", force: :cascade do |t|
     t.string "group_name"
     t.text "group_profile"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
-  create_table "messages", charset: "utf8mb3", force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "post_id"
-    t.string "message"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
