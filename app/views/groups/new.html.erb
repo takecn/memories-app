@@ -1,2 +1,48 @@
-<h1>Groups#new</h1>
-<p>Find me in app/views/groups/new.html.erb</p>
+<% if @group.errors.present? %>
+  <% @group.errors.full_messages.each do |error_message| %>
+    <ul>
+      <li><%= error_message %></li>
+    </ul>
+  <% end %>
+<% end %>
+
+<h1>グループ作成</h1>
+
+<%= form_with model: @group do |f| %>
+  <ul class="nav justify-content-center">
+    <li><%= link_to "グループ一覧に戻る", groups_path, class: "btn btn-primary" %></li>
+    <li><%= f.submit "グループを登録する", class: "btn btn-primary" %></li>
+  </ul>
+  <div class="form-group">
+    <%= f.label :group_name, "グループ名" %>
+    <%= f.text_field :group_name, class: "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :group_avatar, "アイコン" %>
+    <%= f.file_field :group_avatar, accept: "image/jpeg,image/gif,image/png", class: "form-control" %>
+  </div>
+  <div class="form-group">
+    <%= f.label :group_profile, "グループ紹介" %>
+    <%= f.text_field :group_profile, class: "form-control" %>
+  </div>
+  <div class="field">
+    <h6>ユーザー一覧（招待するユーザーを選択してください．グループ作成後にユーザー改廃可能です．）</h6>
+    <div class="row">
+      <%= f.collection_check_boxes(:user_ids, @users, :id, :user_name) do |b| %>
+        <% if b.object.id == current_user.id %>
+          <div class="col-md-3 bg-success">
+            <%= image_tag b.object.user_avatar, size: "32x32", class: "rounded-circle me-2" if b.object.user_avatar.attached? %>
+            <%= b.object.user_name %>
+            <%= b.check_box checked: true, disabled: true %>
+          </div>
+        <% else %>
+          <div class="col-md-3 bg-info">
+            <%= image_tag b.object.user_avatar, size: "32x32", class: "rounded-circle me-2" if b.object.user_avatar.attached? %>
+            <%= b.object.user_name %>
+            <%= b.check_box %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

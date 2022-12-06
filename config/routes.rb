@@ -1,11 +1,4 @@
 Rails.application.routes.draw do
-  get 'group_users/create'
-  get 'group_users/destroy'
-  get 'group_users/join'
-  get 'groups/index'
-  get 'groups/new'
-  get 'groups/show'
-  get 'groups/edit'
   root to: "posts#home"
 
   get "/login", to: "sessions#new"
@@ -23,5 +16,9 @@ Rails.application.routes.draw do
     resource :favorites, only: [:create, :destroy]
     resource :bookmarks, only: [:create, :destroy]
     resources :replies, only: [:create, :destroy]
+  end
+
+  resources :groups, except: :destroy do
+    resources :group_users, only: [:create, :update, :destroy]
   end
 end

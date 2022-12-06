@@ -1,2 +1,85 @@
-<h1>Groups#index</h1>
-<p>Find me in app/views/groups/index.html.erb</p>
+<h1>グループ一覧</h1>
+
+<ul class="nav justify-content-center">
+  <li><%= link_to "ホームに戻る", home_path, class: "btn btn-primary" %></li>
+  <li><%= link_to "グループを新設する", new_group_path, class: "btn btn-primary" %></li>
+</ul>
+
+<div class="row">
+  <div class="col-md-6">
+    <h3>所属グループ</h3>
+    <% @groups.each do |group| %>
+      <% if group.group_user(current_user).present? %>
+        <% if group.group_user(current_user).accepted? %>
+          <%= link_to group_path(group.id) do%>
+            <small class="card">
+              <div class="card-header">
+                <p class="card-title"><%= group.group_name %></p>
+                <p class="card-text">
+                  <p class="text-muted">
+                    <%= "投稿：#{I18n.localize group.created_at, format: :long}" %>
+                    <%= "更新：#{I18n.localize group.updated_at, format: :long}" %>
+                  </p>
+                </p>
+              </div>
+              <%= image_tag group.group_avatar.variant(resize:'100x100'), class: "img-fluid" if group.group_avatar.attached? %>
+              <div class="card-body">
+                <p class="card-text"><%= group.group_profile %></p>
+                <div>
+                  所属メンバー：
+                  <% group.users.each do |user| %>
+                    <%= "#{user.user_name}，" if group.group_user(user).accepted? %>
+                  <% end %>
+                </div>
+                <div>
+                  招待中メンバー：
+                  <% group.users.each do |user| %>
+                    <%= "#{user.user_name}，" unless group.group_user(user).accepted? %>
+                  <% end %>
+                </div>
+              </div>
+            </small>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+  <div class="col-md-6">
+    <h3>招待されているグループ</h3>
+    <% @groups.each do |group| %>
+      <% if group.group_user(current_user).present? %>
+        <% unless group.group_user(current_user).accepted? %>
+          <%= link_to group_path(group.id) do%>
+            <small class="card">
+              <div class="card-header">
+                <p class="card-title"><%= group.group_name %></p>
+                <p class="card-text">
+                  <p class="text-muted">
+                    <%= "投稿：#{I18n.localize group.created_at, format: :long}" %>
+                    <%= "更新：#{I18n.localize group.updated_at, format: :long}" %>
+                  </p>
+                </p>
+              </div>
+              <%= image_tag group.group_avatar.variant(resize:'100x100'), class: "img-fluid" if group.group_avatar.attached? %>
+              <div class="card-body">
+                <p class="card-text"><%= group.group_profile %></p>
+                <div>
+                  所属メンバー：
+                  <% group.users.each do |user| %>
+                    <%= "#{user.user_name}，" if group.group_user(user).accepted? %>
+                  <% end %>
+                </div>
+                <div>
+                  招待中メンバー：
+                  <% group.users.each do |user| %>
+                    <%= "#{user.user_name}，" unless group.group_user(user).accepted? %>
+                  <% end %>
+                </div>
+              </div>
+            </small>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
