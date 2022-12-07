@@ -7,6 +7,8 @@ class User < ApplicationRecord
   has_many :replies
   has_many :group_users
   has_many :groups, through: :group_users
+  has_many :active_notices, class_name: "Notice", foreign_key: "sender_id", dependent: :destroy
+  has_many :passive_notices, class_name: "Notice", foreign_key: "receiver_id", dependent: :destroy
 
   validates :user_avatar, content_type: { in: %w(image/jpeg image/gif image/png), message: "のファイル形式は，JPEG, GIF, PNGのみ添付可能です．" },
                           size: { less_than: 5.megabytes, message: "のデータ容量は5MB以下として下さい．" }
