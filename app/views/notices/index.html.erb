@@ -5,13 +5,19 @@
     <div class="form-inline">
       <span>
         <%= link_to notice.sender.user_name, admin_user_path(notice.sender_id), style: "font-weight: bold;" %>
-        さんが
+        さんが，
       </span>
       <% case notice.notice_factor %>
       <% when "favorite" then %>
         <%= link_to "あなたの投稿", post_path(notice.post_id), style: "font-weight: bold;" %>
         をfavoriteしました．
       <% when "reply" then %>
+        <% if current_user.id == notice.post_user.id %>
+          <%= link_to "あなたの投稿", post_path(notice.post_id), style: "font-weight: bold;" %>
+        <% else %>
+          <%= link_to "あなたがリプライした#{notice.post_user.user_name}さんの投稿", post_path(notice.post_id), style: "font-weight: bold;" %>
+        <% end %>
+        にリプライしました．
       <% when "group_invitation" then %>
       <% end %>
     </div>
