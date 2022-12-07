@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_06_100603) do
+ActiveRecord::Schema.define(version: 2022_12_07_054403) do
 
   create_table "active_storage_attachments", charset: "utf8mb3", force: :cascade do |t|
     t.string "name", null: false
@@ -68,6 +68,19 @@ ActiveRecord::Schema.define(version: 2022_12_06_100603) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["group_name"], name: "index_groups_on_group_name", unique: true
+  end
+
+  create_table "notices", charset: "utf8mb3", force: :cascade do |t|
+    t.integer "sender_id"
+    t.integer "receiver_id"
+    t.integer "post_id"
+    t.integer "favorite_id"
+    t.integer "reply_id"
+    t.integer "group_user_id"
+    t.string "notice_factor"
+    t.boolean "checked", default: false, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "post_tags", charset: "utf8mb3", force: :cascade do |t|
