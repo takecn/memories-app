@@ -32,7 +32,7 @@ class GroupsController < ApplicationController
 
     # グループ作成者(group_founder)をデフォルトでグループの所属メンバーにする．
     group_founder = GroupUser.find_by(group_id: params[:id], user_id: current_user.id)
-    group_founder.update(group_id: params[:id], user_id: current_user.id, accepted: true)
+    group_founder.update(accepted: true)
   end
 
   def edit
