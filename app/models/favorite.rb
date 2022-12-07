@@ -5,10 +5,9 @@ class Favorite < ApplicationRecord
 
   validates_uniqueness_of :post_id, scope: :user_id
 
-  # ユーザーが投稿にfavoriteしたことを通知するnoticeレコードを生成する．
-  # 通知受信者は，投稿者とする．
+  # ユーザーが投稿にfavoriteしたことを通知するnoticeレコードを生成する．通知受信者は投稿者とする．
   def create_favorite_notice(user)
-    favorite_notices = user.active_notices.where(receiver_id: post.user_id, post_id: :post_id, favorite_id: id, notice_factor: "favorite")
+    favorite_notices = user.active_notices.where(receiver_id: post.user_id, post_id: post_id, notice_factor: "favorite")
     if favorite_notices.blank?
       notice = user.active_notices.create(receiver_id: post.user_id, post_id: post_id, favorite_id: id, notice_factor: "favorite")
       # 自らの投稿にユーザーがリプライした場合は通知済みにする．
