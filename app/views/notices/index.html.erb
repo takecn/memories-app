@@ -1,7 +1,12 @@
 <h1>通知一覧</h1>
 
 <% @notices.each do |notice| %>
-  <div class="mb-3 col-md-6 mx-auto">
+  <% if notice.checked? %>
+    <% background_color = "bg-light bg-gradient bg-opacity-50" %>
+  <% else %>
+    <% background_color = "bg-info bg-gradient bg-opacity-50" %>
+  <% end %>
+  <div class="card mb-3 col-md-8 mx-auto <%= background_color %>">
     <div class="form-inline">
       <span>
         <%= link_to notice.sender.user_name, admin_user_path(notice.sender_id), style: "font-weight: bold;" %>
@@ -22,7 +27,22 @@
         <%= link_to "グループ「#{notice.group.group_name}」", group_path(notice.group.id), style: "font-weight: bold;" %>
         にあなたを招待しました．
       <% end %>
+      <div class="small text-muted text-end">
+        <%= "通知："+time_ago_in_words(notice.created_at)+"前" %>
+      </div>
+      <div class="small btn-sm w-100 text-muted text-end">
+        <%= form_with url: notice_path(notice.id), method: :patch do |f| %>
+          <% if notice.checked? %>
+            <%= "既読："+time_ago_in_words(notice.updated_at)+"前" %>
+            <%= f.submit "未読にする" %>
+            <%= f.hidden_field :checked, value: false %>
+          <% else %>
+            <%= "未読：" %>
+            <%= f.submit "既読にする" %>
+            <%= f.hidden_field :checked, value: true %>
+          <% end %>
+        <% end %>
+      </div>
     </div>
   </div>
-  <br>
 <% end %>
