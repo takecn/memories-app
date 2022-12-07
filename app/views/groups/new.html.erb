@@ -33,7 +33,7 @@
           <div class="col-md-3 bg-success">
             <%= image_tag b.object.user_avatar, size: "32x32", class: "rounded-circle me-2" if b.object.user_avatar.attached? %>
             <%= b.object.user_name %>
-            <%= b.check_box checked: true, disabled: true %>
+            <option disabled><%= b.check_box checked: true %></option>
           </div>
         <% else %>
           <div class="col-md-3 bg-info">

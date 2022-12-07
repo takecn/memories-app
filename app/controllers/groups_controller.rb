@@ -29,6 +29,10 @@ class GroupsController < ApplicationController
   def show
     @group = Group.preload(:users, group_avatar_attachment: :blob).find(params[:id])
     @users = User.all
+
+    # グループ作成者(group_founder)をデフォルトでグループの所属メンバーにする．
+    group_founder = GroupUser.find_by(group_id: params[:id], user_id: current_user.id)
+    group_founder.update(group_id: params[:id], user_id: current_user.id, accepted: true)
   end
 
   def edit
