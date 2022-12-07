@@ -4,6 +4,8 @@ class Notice < ApplicationRecord
   belongs_to :post, optional: true
   belongs_to :favorite, optional: true
   belongs_to :reply, optional: true
+  belongs_to :group, optional: true
+  belongs_to :group_user, optional: true
 
   def post_user
     Post.find_by(id: post_id).user

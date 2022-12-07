@@ -1,5 +1,5 @@
 class GroupsController < ApplicationController
-  before_action :group_user?, except: [:new, :index]
+  before_action :group_user?, except: [:new, :create, :index]
 
   def index
     @groups = Group.preload(:users, group_avatar_attachment: :blob)
@@ -13,7 +13,11 @@ class GroupsController < ApplicationController
   def create
     @group = Group.new(group_params)
     @users = User.all
+
+    # 以下のsaveで，groupと同時にgroup_userレコードを生成している．
+    # グループ作成フォームで，collection_check_boxメソッドを用いているため．
     if @group.save
+      @group.create_group_invitation_notice(current_user) # group_userの作成に合わせて通知を発行するための処理．
       flash[:success] = "グループ「#{@group.group_name}」を作成しました．"
       redirect_to group_path(@group.id)
     else

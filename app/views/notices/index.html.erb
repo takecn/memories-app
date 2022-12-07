@@ -19,6 +19,8 @@
         <% end %>
         にリプライしました．
       <% when "group_invitation" then %>
+        <%= link_to "グループ「#{notice.group.group_name}」", group_path(notice.group.id), style: "font-weight: bold;" %>
+        にあなたを招待しました．
       <% end %>
     </div>
   </div>
