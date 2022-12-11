@@ -1,5 +1,52 @@
 <h1>ホーム</h1>
 
+<h3>思い出Map</h3>
+<div id="map"></div>
+<script>
+let map
+let marker =[]
+let infoWindow = []
+
+function initMap(){
+  let markerData = gon.places
+
+  // 初期表示の中心を東京駅に指定．
+  map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 35.68123620000001, lng: 139.7671248},
+        zoom: 5,
+  })
+
+  for (let i = 0; i < markerData.length; i++) {
+    let markerLatLng = new google.maps.LatLng({lat: markerData[i]['latitude'], lng: markerData[i]['longitude']})
+
+    // マーカーの表示．
+    marker[i] = new google.maps.Marker({
+                map: map,
+                position: markerLatLng
+    })
+
+    // マーカーの吹き出し表示．
+    infoWindow[i] = new google.maps.InfoWindow({
+    content: `<a href="#">${markerData[i]['location']}</a>`
+    });
+
+    markerEvent(i);
+  }
+
+  // マーカークリック時に吹き出しを表示.
+  function markerEvent(i) {
+    marker[i].addListener('click', function() {
+      infoWindow[i].open(map, marker[i]);
+    })
+  }
+}
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&callback=initMap" async defer></script>
+
+<br>
+
+<h3>思い出投稿</h3>
 <% @posts.each do |post| %>
   <div class="card mb-3 col-md-6">
     <div class="row g-0">
@@ -23,7 +70,7 @@
         <div class="card-body">
           <p class="card-text"><%= post.comment %></p>
           <p class="card-text"><%= "思い出の日付：#{post.memorized_on}" %></p>
-          <%# <p class="card-text"><%= post.location %></p> 思い出のロケーション%>
+          <p class="card-text"><%= "思い出のロケーション：#{post.map.location}" if post.map.present? %></p>
           <p class="card-text">タグ：
             <% post.tags.distinct.each do |tag| %>
               <span class="bg-info bg-opacity-75 border border-dark rounded"><%= tag.tag_name %></span>
