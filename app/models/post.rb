@@ -1,6 +1,7 @@
 class Post < ApplicationRecord
   has_many_attached :post_images
   belongs_to :user
+  belongs_to :map
   has_many :favorites, dependent: :destroy
   has_many :bookmarks, dependent: :destroy
   has_many :post_tags, dependent: :destroy
