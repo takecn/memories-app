@@ -79,7 +79,19 @@ function initMap(){
   </tr>
   <tr>
     <th><%= "公開範囲" %></th>
-    <td><%= @post.disclosure_range %></td>
+    <td>
+      <% if @post.groups.present? %>
+        <% @post.groups.each do |group| %>
+          <span class="bg-info bg-opacity-75 border border-dark rounded">
+            <%= group.group_name %>
+          </span>
+        <% end %>
+      <% else %>
+        <span class="bg-info bg-opacity-75 border border-dark rounded">
+          <%= "非公開" %>
+        </span>
+      <% end %>
+    </td>
   </tr>
   <tr>
     <th><%= "思い出の画像" %></th>

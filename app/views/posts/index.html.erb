@@ -1,56 +1,16 @@
 <div class="row">
   <% @posts.each do |post| %>
-    <% if post.post_images.attached? %>
-      <% post.post_images.each do |post_image| %>
-        <div class="col-md-6 col-xl-4">
-          <small class="card">
-            <div class="card-header">
-              <p class="card-title"><%= post.user.user_name %></p>
-              <p class="card-text">
-                <p class="text-muted">
-                  <%= "投稿：#{I18n.localize post.created_at, format: :long}" %>
-                  <%= "更新：#{I18n.localize post.updated_at, format: :long}" %>
-                </p>
-              </p>
-            </div>
-            <%= image_tag post_image, class: "img-fluid" %>
-            <div class="card-body">
-              <p class="card-text"><%= post.comment %></p>
-              <p class="card-text"><%= "思い出の日付：#{post.memorized_on}" %></p>
-              <%# <p class="card-text"><%= post.location %></p> 思い出のロケーション%>
-              <p class="card-text">タグ：
-                <% post.tags.distinct.each do |tag| %>
-                  <span class="bg-info bg-opacity-75 border border-dark rounded"><%= tag.tag_name %></span>
-                <% end %>
-              </p>
-              <p class="card-text"><%= "公開範囲：#{post.disclosure_range}" %></p>
-            </div>
-            <div class="card-footer">
-              <div class="card-text">
-                <% if post.favorited_by?(current_user) %>
-                  <%= link_to post_favorites_path(post.id), method: :delete do %>
-                    <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: red;"></i><%= post.favorites.size %>
-                  <% end %>
-                <% else %>
-                  <%= link_to post_favorites_path(post.id), method: :post do %>
-                    <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: gray;"></i><%= post.favorites.size %>
-                  <% end %>
-                <% end %>
-                <% if post.bookmarked_by?(current_user) %>
-                  <%= link_to post_bookmarks_path(post.id), method: :delete do %>
-                    <i class="fa fa-bookmark fa-lg fa-fw" aria-hidden="true" style="color: blue;"></i>
-                  <% end %>
-                <% else %>
-                  <%= link_to post_bookmarks_path(post.id), method: :post do %>
-                    <i class="fa fa-bookmark fa-lg fa-fw" aria-hidden="true" style="color: gray;"></i>
-                  <% end %>
-                <% end %>
-                <%= "リプライ有無" %>
-                <%= link_to "投稿詳細/リプライ", post_path(post.id), class: "card-link link-info text-decoration-none" %>
-              </div>
-            </div>
-          </small>
-        </div>
+    <% if post.user_id == current_user.id %>
+      <!--current_userの投稿を表示する．-->
+      <%= render 'index_posts', post: post %>
+    <% else %>
+      <% post.groups.each do |group| %>
+        <% group.group_users.each do |group_user| %>
+          <% if group_user.accepted? && (group_user.user_id == current_user.id) %>
+            <!--current_userの所属するグループのメンバーによる投稿，かつ，開示対象としてそのグループが指定された投稿を表示する．-->
+            <%= render 'index_posts', post: post %>
+          <% end %>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>
