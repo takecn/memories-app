@@ -3,6 +3,8 @@ class Group < ApplicationRecord
   has_many :group_users, dependent: :destroy
   has_many :users, through: :group_users
   has_many :notices
+  has_many :disclosures, dependent: :destroy
+  has_many :posts, through: :disclosures
 
   validates :group_avatar, content_type: { in: %w(image/jpeg image/gif image/png), message: "のファイル形式は，JPEG, GIF, PNGのみ添付可能です．" },
                            size: { less_than: 5.megabytes, message: "のデータ容量は5MB以下として下さい．" }

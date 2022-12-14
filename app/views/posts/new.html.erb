@@ -15,7 +15,7 @@
   </ul>
   <div class="form-group">
     <%= f.label :comment, "コメント" %>
-    <%= f.text_field :comment, class: "form-control" %>
+    <%= f.text_area :comment, class: "form-control" %>
   </div>
   <div class="form-group">
     <%= f.label :memorized_on, "思い出の日付" %>
@@ -30,8 +30,14 @@
     <%= f.text_field :tag_name, placeholder: "複数タグ登録は，単語間にコンマ[,]またはスペースを挿入．", class: "form-control" %>
   </div>
   <div class="form-group">
-    <%# <%= f.label :disclosure_range, "公開範囲" %> %>
-    <%# <%= f.collection_select :disclosure_range, @posts, :group_name, :group_name, {selected: "非公開"}, class: "form-control" %> %>
+    <h6>公開範囲（公開先グループを選択してください．未選択で非公開にできます．）</h6>
+    <%= f.collection_check_boxes(:group_ids, @groups, :id, :group_name) do |b| %>
+      <span class="bg-success">
+        <%= b.check_box %>
+        <%= image_tag b.object.group_avatar, size: "32x32", class: "rounded-circle me-2" if b.object.group_avatar.attached? %>
+        <%= b.object.group_name %>
+      </span>
+    <% end %>
   </div>
   <div class="form-group">
     <%= f.label :post_images, "思い出の画像" %>
