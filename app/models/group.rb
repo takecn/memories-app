@@ -18,7 +18,7 @@ class Group < ApplicationRecord
   # 通知受信者はグループに招待されたユーザーとする．
   def create_group_invitation_notice(user)
     GroupUser.where(group_id: id).each do |group_user|
-      user.active_notices.create(receiver_id: group_user.user_id, group_user_id: id, group_id: id, notice_factor: "group_invitation")
+      user.active_notices.create(receiver_id: group_user.user_id, group_user_id: group_user.id, group_id: id, notice_factor: "group_invitation")
     end
   end
 end
