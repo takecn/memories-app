@@ -14,10 +14,15 @@ class GroupsController < ApplicationController
     @group = Group.new(group_params)
     @users = User.all
 
-    # 以下のsaveで，groupと同時にgroup_userレコードを生成している．
-    # グループ作成フォームで，collection_check_boxメソッドを用いているため．
-    if @group.save
-      @group.create_group_invitation_notice(current_user) # group_userの作成に合わせて通知を発行するための処理．
+    if @group.save # post保存時に，collection_check_boxesメソッドによりgroup_usersテーブルのレコードが生成．
+
+      # グループ作成者(group_founder)をデフォルトでグループの所属メンバーにする．
+      group_founder = GroupUser.find_by(group_id: @group.id, user_id: current_user.id)
+      group_founder.update(accepted: true)
+
+      # group_userの作成に合わせて通知を発行する．
+      @group.create_group_invitation_notice(current_user)
+
       flash[:success] = "グループ「#{@group.group_name}」を作成しました．"
       redirect_to group_path(@group.id)
     else
@@ -29,10 +34,6 @@ class GroupsController < ApplicationController
   def show
     @group = Group.preload(:users, group_avatar_attachment: :blob).find(params[:id])
     @users = User.all
-
-    # グループ作成者(group_founder)をデフォルトでグループの所属メンバーにする．
-    group_founder = GroupUser.find_by(group_id: params[:id], user_id: current_user.id)
-    group_founder.update(accepted: true)
   end
 
   def edit
@@ -58,6 +59,7 @@ class GroupsController < ApplicationController
 
   def group_user?
     group = Group.find(params[:id])
-    group.group_users.where(user_id: current_user.id)
+    group_user = group.group_users.find_by(group_id: group.id, user_id: current_user.id)
+    redirect_to groups_path if group_user.blank?
   end
 end
