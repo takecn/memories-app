@@ -39,10 +39,7 @@ class PostsController < ApplicationController
     @map = Map.create(location: params[:post][:location])
     @post = current_user.posts.new(post_params.merge(map_id: @map.id))
 
-    if @post.save
-      # 投稿の開示先グループを設定する．
-      newly_set_group_ids = post_params[:group_ids]
-      @post.set_groups(@post, newly_set_group_ids)
+    if @post.save # post保存時に，collection_check_boxesメソッドによりdisclosuresテーブルのレコードが生成．
 
       # 投稿にタグを付ける．
       entered_tags = params[:post][:tag_name].split(/[,| |，|、|　]/)
@@ -72,9 +69,8 @@ class PostsController < ApplicationController
 
   def update
     @post = Post.find(params[:id])
-
     # 投稿の開示先グループを編集する．
-    newly_set_group_ids = post_params[:group_ids]
+    newly_set_group_ids = post_params[:group_ids].map(&:to.i)
     @post.set_groups(@post, newly_set_group_ids)
 
     # 投稿のタグを編集する．
