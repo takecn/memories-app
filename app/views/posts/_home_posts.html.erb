@@ -42,16 +42,16 @@
       </div>
       <div class="card-footer">
         <div class="card-text">
-          <% if post.favorited_by?(current_user) %>
+          <% if favorited_by?(post, current_user).present? %>
             <%= link_to post_favorites_path(post.id), method: :delete do %>
-              <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: red;"></i><%= post.favorites.size %>
+              <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: red;"></i><%= favorited_by?(post, current_user).size %>
             <% end %>
           <% else %>
             <%= link_to post_favorites_path(post.id), method: :post do %>
-              <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: gray;"></i><%= post.favorites.size %>
+              <i class="fa fa-thumbs-up fa-lg fa-fw" aria-hidden="true" style="color: gray;"></i><%= favorited_by?(post, current_user).size %>
             <% end %>
           <% end %>
-          <% if post.bookmarked_by?(current_user) %>
+          <% if bookmarked_by?(post, current_user).present? %>
             <%= link_to post_bookmarks_path(post.id), method: :delete do %>
               <i class="fa fa-bookmark fa-lg fa-fw" aria-hidden="true" style="color: blue;"></i>
             <% end %>
@@ -60,8 +60,7 @@
               <i class="fa fa-bookmark fa-lg fa-fw" aria-hidden="true" style="color: gray;"></i>
             <% end %>
           <% end %>
-          <%= "リプライ有無" %>
-          <%= link_to "投稿詳細/リプライ(#{post.replies.size})", post_path(post.id), class: "card-link link-info text-decoration-none" %>
+          <%= link_to "投稿詳細/リプライ(#{replies_count(post)})", post_path(post.id), class: "card-link link-info text-decoration-none" %>
         </div>
       </div>
     </div>
