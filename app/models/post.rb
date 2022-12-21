@@ -14,22 +14,17 @@ class Post < ApplicationRecord
   validates :post_images, content_type: { in: %w(image/jpeg image/gif image/png), message: "のファイル形式は，JPEG, GIF, PNGのみ添付可能です．" },
                           size: { less_than: 5.megabytes, message: "のデータ容量は5MB以下として下さい．" }
 
-  def favorited_by?(user)
-    favorites.where(user_id: user.id).present?
-  end
-
-  def bookmarked_by?(user)
-    bookmarks.where(user_id: user.id).present?
-  end
-
+  # tagを生成，編集するメソッド
   def create_tags(entered_tags)
     existing_tags = tags.pluck(:tag_name) unless tags.nil?
 
+    # フォームから削除したタグのレコードをdelete
     old_tags = existing_tags - entered_tags
     old_tags.each do |old_tag|
-      tags.delete Tag.find_by(tag_name: old_tag)
+      Tag.find_by(tag_name: old_tag).delete
     end
 
+    # フォームに新規入力したタグのレコードを生成
     new_tags = entered_tags - existing_tags
     new_tags.each do |new_tag|
       tags << Tag.find_or_create_by(tag_name: new_tag)
@@ -51,7 +46,7 @@ class Post < ApplicationRecord
     end
   end
 
-  # ログインユーザーが閲覧可能な投稿を抽出するメソッド
+  # ログインユーザーが閲覧できる投稿を抽出するメソッド
   def self.extract_posts(user, posts)
     Post.all.each do |post|
       if post.user_id == user.id

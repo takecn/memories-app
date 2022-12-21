@@ -10,7 +10,7 @@ class PostsController < ApplicationController
     @posts_viewed_by_current_user = Post.where(id: posts_viewed_by_current_user.map(&:id))
 
     # 上記で取得した投稿に紐つく情報を抽出し，検索フォームを生成する．
-    @users = @posts_viewed_by_current_user.map(&:user).uniq
+    @users = @posts_viewed_by_current_user.eager_load(:user).map(&:user).uniq
     @tags = @posts_viewed_by_current_user.preload(:tags).map(&:tags).flatten.compact_blank.uniq
     @groups = @posts_viewed_by_current_user.preload(:groups).map(&:groups).flatten.compact_blank.uniq
     @groups << Group.find_or_create_by(group_name: "非公開") # 検索フォームに"非公開"を表示させる．
@@ -22,7 +22,7 @@ class PostsController < ApplicationController
     @search_params = post_search_params
     @posts = @posts_viewed_by_current_user.
       eager_load(:user, :map).
-      preload(:disclosures, :groups, :post_tags, :tags, :replies, :favorites, :bookmarks, :notices, post_images_attachments: :blob).
+      preload(:disclosures, :groups, :post_tags, :tags, post_images_attachments: :blob).
       search(@search_params, current_user).
       order(created_at: :desc)
 
@@ -34,7 +34,15 @@ class PostsController < ApplicationController
   end
 
   def index
-    @posts = Post.eager_load(:user, :map).preload(:groups, :disclosures, post_images_attachments: :blob).order(id: :DESC)
+    # ユーザーの閲覧可能な投稿を配列で取得し，配列からActiveRecordを取得する．
+    posts_viewed_by_current_user = []
+    Post.extract_posts(current_user, posts_viewed_by_current_user)
+    @posts = Post.
+      eager_load(:user, :map).
+      preload(:disclosures, :groups, post_images_attachments: :blob).
+      where(id: posts_viewed_by_current_user.map(&:id)).
+      order(created_at: :desc)
+    # @posts = Post.eager_load(:user, :map).preload(:groups, :disclosures, post_images_attachments: :blob).order(id: :DESC)
   end
 
   def new
@@ -43,13 +51,13 @@ class PostsController < ApplicationController
   end
 
   def create
-    @map = Map.create(location: params[:post][:location])
+    @map = Map.find_or_create_by(location: post_location_params[:location])
     @post = current_user.posts.new(post_params.merge(map_id: @map.id))
 
     if @post.save # post保存時に，collection_check_boxesメソッドによりdisclosuresテーブルのレコードを生成している．
 
       # 投稿にタグを付ける．
-      entered_tags = params[:post][:tag_name].split(/[,| |，|、|　]/)
+      entered_tags = post_tag_params[:tag_name].split(/[,| |，|、|　]/)
       @post.create_tags(entered_tags)
 
       flash[:success] = "思い出を投稿しました．"
@@ -77,18 +85,18 @@ class PostsController < ApplicationController
   def update
     @post = Post.find(params[:id])
     # 投稿の開示先グループを編集する．
-    newly_set_group_ids = post_params[:group_ids].map(&:to.i)
+    newly_set_group_ids = post_params[:group_ids]
     @post.set_groups(@post, newly_set_group_ids)
 
     # 投稿のタグを編集する．
-    entered_tags = params[:post][:tag_name].split(/[,| |、|　]/)
+    entered_tags = post_tag_params[:tag_name].split(/[,| |、|　]/)
     @post.create_tags(entered_tags)
 
     # 投稿のロケーションを編集する．
     if @post.map.present?
-      @post.map.update(location: params[:post][:location])
+      @post.map.update(location: post_location_params[:location])
     else
-      @map = Map.create(location: params[:post][:location])
+      @map = Map.find_or_create_by(location: post_location_params[:location])
       @post.update(map_id: @map.id)
     end
 
@@ -112,6 +120,14 @@ class PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:comment, :memorized_on, :description, post_images: [], group_ids: [])
+  end
+
+  def post_location_params
+    params.require(:post).permit(:location)
+  end
+
+  def post_tag_params
+    params.require(:post).permit(:tag_name)
   end
 
   def post_search_params
