@@ -1,6 +1,4 @@
 class Post < ApplicationRecord
-  include ActiveModel::Model
-
   has_many_attached :post_images
   belongs_to :user
   belongs_to :map
@@ -15,7 +13,6 @@ class Post < ApplicationRecord
 
   validates :post_images, content_type: { in: %w(image/jpeg image/gif image/png), message: "のファイル形式は，JPEG, GIF, PNGのみ添付可能です．" },
                           size: { less_than: 5.megabytes, message: "のデータ容量は5MB以下として下さい．" }
-  validates :search_method, presence: true
 
   def favorited_by?(user)
     favorites.where(user_id: user.id).present?
