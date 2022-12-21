@@ -14,4 +14,26 @@ module PostsHelper
       flash.now[:success] = "指定の条件で投稿を絞り込みました．"
     end
   end
+
+  def favorited_by?(post, user)
+    Favorite.where(post_id: post.id, user_id: user.id)
+  end
+
+  def bookmarked_by?(post, user)
+    Bookmark.where(post_id: post.id, user_id: user.id)
+  end
+
+  def replies_count(post)
+    Reply.where(post_id: post.id).size
+  end
+
+  def disclosed_user(post)
+    disclosed_user = []
+    post.groups.preload(:group_users, :users).each do |group|
+      group.users.each do |user|
+        disclosed_user << user.user_name
+      end
+    end
+    disclosed_user.uniq
+  end
 end
