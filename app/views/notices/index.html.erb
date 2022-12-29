@@ -17,10 +17,10 @@
         <%= link_to "あなたの投稿", post_path(notice.post_id), style: "font-weight: bold;" %>
         をfavoriteしました．
       <% when "reply" then %>
-        <% if current_user.id == notice.post_user.id %>
+        <% if current_user.id == post_user(notice).id %>
           <%= link_to "あなたの投稿", post_path(notice.post_id), style: "font-weight: bold;" %>
         <% else %>
-          <%= link_to "あなたがリプライした#{notice.post_user.user_name}さんの投稿", post_path(notice.post_id), style: "font-weight: bold;" %>
+          <%= link_to "あなたがリプライした#{post_user(notice).user_name}さんの投稿", post_path(notice.post_id), style: "font-weight: bold;" %>
         <% end %>
         にリプライしました．
       <% when "group_invitation" then %>
