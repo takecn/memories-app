@@ -10,14 +10,10 @@ class Group < ApplicationRecord
                            size: { less_than: 5.megabytes, message: "のデータ容量は5MB以下として下さい．" }
   validates :group_name, presence: true, uniqueness: true, on: :create
 
-  def group_user(user)
-    group_users.find_by(user_id: user.id)
-  end
-
   # グループにユーザーが招待されたことを通知するnoticeレコードを生成する．
   # 通知受信者はグループに招待されたユーザーとする．
-  def create_group_invitation_notice(user)
-    GroupUser.where(group_id: id).each do |group_user|
+  def create_group_invitation_notice(group_users, user)
+    group_users.each do |group_user|
       user.active_notices.create(receiver_id: group_user.user_id, group_user_id: group_user.id, group_id: id, notice_factor: "group_invitation")
     end
   end
