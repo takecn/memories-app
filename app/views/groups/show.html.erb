@@ -1,16 +1,16 @@
 <h1>グループ詳細・メンバー編集</h1>
 
-<% if @group.group_user(current_user) %>
+<% if group_user(@group, current_user) %>
   <ul class="nav justify-content-center">
-    <% unless @group.group_user(current_user).accepted? %>
+    <% unless group_user(@group, current_user).accepted? %>
       <li><h4 class="text-info"><%= "#{@group.group_name}に招待されています！" %></h4></li>
       <li>
-        <%= form_with url: group_group_user_path(@group.id, @group.group_user(current_user).id), method: :patch do |f| %>
+        <%= form_with url: group_group_user_path(@group.id, group_user(@group, current_user).id), method: :patch do |f| %>
           <%= f.hidden_field :accepted, value: true %>
           <%= f.submit "参加する", class: "btn btn-primary" %>
         <% end %>
       </li>
-      <li><%= link_to "参加しない", group_group_user_path(@group.id, @group.group_user(current_user).id), method: :delete, data: {confirm: "投稿を削除しますか？"}, class: "btn btn-primary" %></li>
+      <li><%= link_to "参加しない", group_group_user_path(@group.id, group_user(@group, current_user).id), method: :delete, data: {confirm: "投稿を削除しますか？"}, class: "btn btn-primary" %></li>
     <% else %>
       <li><%= link_to "グループ情報を編集する", edit_group_path(@group.id), class: "btn btn-primary" %></li>
     <% end %>
@@ -47,14 +47,14 @@
     <h3>所属メンバー</h3>
     <div class="row">
       <% @group.users.each do |user| %>
-        <% if @group.group_user(user).accepted? %>
-          <%= form_with url: group_group_user_path(@group.id, @group.group_user(user).id), method: :delete do |f| %>
+        <% if group_user(@group, user).accepted? %>
+          <%= form_with url: group_group_user_path(@group.id, group_user(@group, user).id), method: :delete do |f| %>
             <div class="card mb-3 col-md-6 img-fluid">
               <%= link_to admin_user_path(user.id), class: "nav-link link-info" do %>
                 <%= image_tag user.user_avatar, size: "32x32", class: "rounded-circle me-2" if user.user_avatar.attached? %>
                 <strong><%= user.user_name %></strong>
               <% end %>
-              <%= f.submit "メンバーから削除する" if @group.group_user(current_user)&.accepted? %>
+              <%= f.submit "メンバーから削除する" if group_user(@group, current_user)&.accepted? %>
             </div>
           <% end %>
         <% end %>
@@ -65,14 +65,14 @@
     <h3>招待中メンバー</h3>
     <div class="row">
       <% @group.users.each do |user| %>
-        <% unless @group.group_user(user).accepted? %>
-          <%= form_with url: group_group_user_path(@group.id, @group.group_user(user).id), method: :delete do |f| %>
+        <% unless group_user(@group, user).accepted? %>
+          <%= form_with url: group_group_user_path(@group.id, group_user(@group, user).id), method: :delete do |f| %>
             <div class="card mb-3 col-md-6 img-fluid">
               <%= link_to admin_user_path(user.id), class: "nav-link link-info" do %>
                 <%= image_tag user.user_avatar, size: "32x32", class: "rounded-circle me-2" if user.user_avatar.attached? %>
                 <strong><%= user.user_name %></strong>
               <% end %>
-              <%= f.submit "招待を取り消す" if @group.group_user(current_user)&.accepted? %>
+              <%= f.submit "招待を取り消す" if group_user(@group, current_user)&.accepted? %>
             </div>
           <% end %>
         <% end %>
@@ -86,7 +86,7 @@
     <h3>その他ユーザー</h3>
     <div class="row">
       <% @users.each do |user| %>
-        <% unless @group.group_user(user).present? %>
+        <% unless group_user(@group, user).present? %>
           <%= form_with url: group_group_users_path(@group.id), method: :post do |f| %>
             <div class="card mb-3 col-md-3 img-fluid">
               <%= link_to admin_user_path(user.id), class: "nav-link link-info" do %>
@@ -96,7 +96,7 @@
               <%= f.hidden_field :group_id, value: @group.id %>
               <%= f.hidden_field :user_id, value: user.id %>
               <%= f.hidden_field :accepted, value: false %>
-              <%= f.submit "ユーザーを招待する" if @group.group_user(current_user)&.accepted? %>
+              <%= f.submit "ユーザーを招待する" if group_user(@group, current_user)&.accepted? %>
             </div>
           <% end %>
         <% end %>

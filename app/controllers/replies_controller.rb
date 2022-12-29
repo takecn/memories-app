@@ -1,7 +1,8 @@
 class RepliesController < ApplicationController
   def create
     @reply = Reply.create(reply_params)
-    @reply.create_reply_notice(current_user)
+    @replies = Reply.where(post_id: @reply.post_id)
+    @reply.create_reply_notice(@replies, current_user)
     flash[:info] = "リプライしました！"
     redirect_to request.referer
   end

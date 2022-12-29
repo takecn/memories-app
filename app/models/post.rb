@@ -47,8 +47,8 @@ class Post < ApplicationRecord
   end
 
   # ログインユーザーが閲覧できる投稿を抽出するメソッド
-  def self.extract_posts(user, posts)
-    Post.all.each do |post|
+  def self.extract_posts(user, posts, all_posts)
+    all_posts.each do |post|
       if post.user_id == user.id
         # current_userの投稿であれば閲覧できる．
         posts << post
@@ -147,7 +147,7 @@ class Post < ApplicationRecord
 
   # 投稿に紐つくmapを抽出するメソッド
   def self.extract_maps(posts, maps)
-    posts.eager_load(:map).each do |post|
+    posts.each do |post|
       maps << post.map if post.map&.location.present?
     end
   end

@@ -21,7 +21,8 @@ class GroupsController < ApplicationController
       group_founder.update(accepted: true)
 
       # group_userの作成に合わせて通知を発行する．
-      @group.create_group_invitation_notice(current_user)
+      @group_users = GroupUser.where(group_id: @group.id)
+      @group.create_group_invitation_notice(@group_users, current_user)
 
       flash[:success] = "グループ「#{@group.group_name}」を作成しました．"
       redirect_to group_path(@group.id)
