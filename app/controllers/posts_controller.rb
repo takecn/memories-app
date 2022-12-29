@@ -6,7 +6,7 @@ class PostsController < ApplicationController
   def home
     # ユーザーの閲覧可能な投稿を配列で取得し，配列からActiveRecordを取得する．
     posts_viewed_by_current_user = []
-    Post.extract_posts(current_user, posts_viewed_by_current_user)
+    Post.extract_posts(current_user, posts_viewed_by_current_user, Post.all)
     @posts_viewed_by_current_user = Post.where(id: posts_viewed_by_current_user.map(&:id))
 
     # 上記で取得した投稿に紐つく情報を抽出し，検索フォームを生成する．
@@ -15,7 +15,7 @@ class PostsController < ApplicationController
     @groups = @posts_viewed_by_current_user.preload(:groups).map(&:groups).flatten.compact_blank.uniq
     @groups << Group.find_or_create_by(group_name: "非公開") # 検索フォームに"非公開"を表示させる．
     posts_maps = []
-    Post.extract_maps(@posts_viewed_by_current_user, posts_maps)
+    Post.extract_maps(@posts_viewed_by_current_user.eager_load(:map), posts_maps)
     @maps = posts_maps.compact_blank.uniq
 
     # 検索後の投稿一覧を取得する．
@@ -28,7 +28,7 @@ class PostsController < ApplicationController
 
     # 検索後の投稿に紐つくマップ情報を取得する．
     posts_maps = []
-    Post.extract_maps(@posts, posts_maps)
+    Post.extract_maps(@posts.eager_load(:map), posts_maps)
     maps = posts_maps.compact_blank.uniq
     gon.places = Map.where(id: maps.map(&:id))
   end
@@ -36,7 +36,7 @@ class PostsController < ApplicationController
   def index
     # ユーザーの閲覧可能な投稿を配列で取得し，配列からActiveRecordを取得する．
     posts_viewed_by_current_user = []
-    Post.extract_posts(current_user, posts_viewed_by_current_user)
+    Post.extract_posts(current_user, posts_viewed_by_current_user, Post.all)
     @posts = Post.
       eager_load(:user, :map).
       preload(:disclosures, :groups, post_images_attachments: :blob).
