@@ -1,11 +1,13 @@
 module Api
   module V1
     class Admin::UsersController < ApplicationController
-      skip_before_action :login_required, only: [:new, :create]
+      # skip_before_action :login_required, only: [:new, :create] # 一時的にコメントアウト
       before_action :edit_or_delete_permission_required, only: [:edit, :destroy]
 
       def index
         @users = User.all
+
+        render json: { users: @users }, status: :ok
       end
 
       def new
