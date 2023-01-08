@@ -5,9 +5,8 @@ module Api
       before_action :edit_or_delete_permission_required, only: [:edit, :destroy]
 
       def index
-        @users = User.all
-
-        render json: { users: @users }, status: :ok
+        users = User.all
+        render json: { users: users }, status: :ok
       end
 
       def new
@@ -23,10 +22,6 @@ module Api
           flash.now[:danger] = "アカウント登録できませんでした．"
           render :new
         end
-      end
-
-      def show
-        @user = User.find(params[:id])
       end
 
       def edit
