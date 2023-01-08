@@ -1,6 +1,6 @@
 import { REQUEST_STATE } from "../constants";
 
-export const initialState = {
+export const initialUsersState = {
   fetchState: REQUEST_STATE.INITIAL,
   usersList: [],
 };
