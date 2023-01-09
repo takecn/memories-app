@@ -1,0 +1,20 @@
+<header class="navbar navbar-fixed-top navbar-inverse">
+  <div class="container">
+    <nav>
+      <ul class="nav navbar-nav navbar-right">
+        <% if current_user %>
+          <li><%= link_to "ユーザー詳細", admin_user_path(current_user.id) %></li>
+          <li><%= link_to "ユーザー一覧", admin_users_path %></li>
+          <li><%= link_to "ユーザー登録", new_admin_user_path %></li>
+          <li><%= link_to "ログアウト", logout_path, method: :delete, data: {confirm: "ログアウトしますか？"} %></li>
+        <% else %>
+          <li><%= link_to "ユーザー登録", new_admin_user_path %></li>
+          <li><%= link_to "ログイン", login_path %></li>
+        <% end %>
+      </ul>
+    </nav>
+    <% if current_user %>
+      <div class="current-user-name"><%= "こんにちは，#{current_user.user_name} (id:#{current_user.id})さん" %></div>
+    <% end %>
+  </div>
+</header>

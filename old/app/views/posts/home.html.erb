@@ -1,0 +1,122 @@
+<%= flash_message(@search_params) %>
+
+<h1>ホーム</h1>
+<h3>投稿検索</h3>
+<%= form_with scope: :search, url: home_path, method: :GET do |f| %>
+  <%= f.hidden_field :search_method, value: "all_posts" %>
+  <%= f.submit "投稿を全件表示" %>
+<% end %>
+<%= form_with scope: :search, url: home_path, method: :GET do |f| %>
+  <div>
+  ●キーワード（複数可．カンマ，スペースで区切る．）：
+  <%= f.text_field :keyword, value: @search_params[:keyword], placeholder: "キーワード（複数可）" %>
+  </div>
+  <div>
+  ●期間：
+  <%= f.date_field :start_date, value: @search_params[:start_date], placeholder: "開始日" %>
+  〜
+  <%= f.date_field :end_date, value: @search_params[:end_date], placeholder: "終了日" %>
+  </div>
+  <details open>
+    <summary>●ロケーション（複数選択可）：</summary>
+    <%= f.collection_check_boxes(:locations, @maps, :location, :location, { checked: @search_params[:locations] }, include_hidden: false) do |b| %>
+      <%= b.check_box %>
+      <%= b.object.location %>
+    <% end %>
+  </details>
+  <details open>
+    <summary>●タグ（複数選択可）：</summary>
+    <%= f.collection_check_boxes(:tag_names, @tags, :tag_name, :tag_name, { checked: @search_params[:tag_names] }) do |b| %>
+      <%= b.check_box %>
+      <%= b.object.tag_name %>
+    <% end %>
+  </details>
+  <details open>
+    <summary>●公開範囲（複数選択可）：</summary>
+    <%= f.collection_check_boxes(:group_names, @groups, :group_name, :group_name, { checked: @search_params[:group_names] }) do |b| %>
+      <%= b.check_box %>
+      <%= b.object.group_name %>
+    <% end %>
+  </details>
+  <details open>
+    <summary>●投稿者（複数選択可）：</summary>
+    <%= f.collection_check_boxes(:user_names, @users, :user_name, :user_name, { checked: @search_params[:user_names] }) do |b| %>
+      <%= b.check_box %>
+      <%= b.object.user_name %>
+    <% end %>
+  </details open>
+  <div>
+  ●お気に入り：
+  <%= f.radio_button :favorites, "favorited_posts", checked: @search_params[:favorites] == "favorited_posts" %>お気に入りした投稿を含む
+  <%= f.radio_button :favorites, "non_selected", checked: @search_params[:favorites] == "non_selected" %>選択しない
+  </div>
+  <div>
+  ●ブックマーク：
+  <%= f.radio_button :bookmarks, "bookmarked_posts", checked: @search_params[:bookmarks] == "bookmarked_posts" %>ブックマークした投稿を含む
+  <%= f.radio_button :bookmarks, "non_selected", checked: @search_params[:bookmarks] == "non_selected" %>選択しない
+  </div>
+  <div>
+  ●検索方式：
+  <%= f.radio_button :search_method, "and", checked: @search_params[:search_method] == "and" %>AND検索
+  <%= f.radio_button :search_method, "or", checked: @search_params[:search_method] == "or" %>OR検索
+  <div class="bg-danger bg-opacity-25 rounded">※検索項目(キーワード，期間等)間のAND/OR条件を指定する．</div>
+  </div>
+  <div class="nav justify-content-center">
+    <%= f.hidden_field :searched, value: true %>
+    <%= f.submit "検索する" %>
+  </div>
+<% end %>
+
+<h3>思い出Map</h3>
+<div id="map"></div>
+<script>
+let map
+let marker =[]
+let infoWindow = []
+
+function initMap(){
+  let markerData = gon.places
+
+  // 初期表示の中心を東京駅に指定．
+  map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 35.68123620000001, lng: 139.7671248},
+        zoom: 5,
+  })
+
+  for (let i = 0; i < markerData.length; i++) {
+    let markerLatLng = new google.maps.LatLng({lat: markerData[i]['latitude'], lng: markerData[i]['longitude']})
+
+    // マーカーの表示．
+    marker[i] = new google.maps.Marker({
+                map: map,
+                position: markerLatLng
+    })
+
+    // マーカーの吹き出し表示．
+    infoWindow[i] = new google.maps.InfoWindow({
+    content: `<a href="#">${markerData[i]['location']}</a>`
+    });
+
+    markerEvent(i);
+  }
+
+  // マーカークリック時に吹き出しを表示.
+  function markerEvent(i) {
+    marker[i].addListener('click', function() {
+      infoWindow[i].open(map, marker[i]);
+    })
+  }
+}
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&callback=initMap" async defer></script>
+
+<br>
+
+<h3>思い出投稿</h3>
+<% @posts.each do |post| %>
+  <%= render 'home_posts', post: post %>
+<% end %>
+<% if @posts.blank? %>
+  <h1 class="nav justify-content-center bg-warning bg-opacity-25 rounded">条件に合致する投稿はありません．</h1>
+<% end %>

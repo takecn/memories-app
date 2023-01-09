@@ -1,0 +1,68 @@
+<% if @post.errors.present? %>
+  <% @post.errors.full_messages.each do |error_message| %>
+    <ul>
+      <li><%= error_message %></li>
+    </ul>
+  <% end %>
+<% end %>
+
+<h1>投稿編集</h1>
+
+<%= form_with model: @post do |f| %>
+  <ul class="nav justify-content-center">
+    <li><%= link_to "ホームに戻る", home_path, class: "btn btn-primary" %></li>
+    <li><%= f.submit "投稿を更新する", class: "btn btn-primary" %></li>
+    <li><%= link_to "投稿詳細画面に戻る", post_path(@post.id), class: "btn btn-primary" %></li>
+    <li><%= link_to "投稿を削除する", post_path(@post.id), method: :delete, data: {confirm: "投稿を削除しますか？"}, class: "btn btn-primary" %></li>
+  </ul>
+  <table class="table table-striped">
+    <tr>
+      <th><%= "ユーザー名" %></th>
+      <td><%= @post.user.user_name %></td>
+    </tr>
+    <tr>
+      <th><%= "投稿日時" %></th>
+      <td><%= I18n.localize @post.created_at, format: :long %></td>
+    </tr>
+    <tr>
+      <th><%= "前回の更新日時" %></th>
+      <td><%= I18n.localize @post.updated_at, format: :long %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :comment, "コメント" %></th>
+      <td><%= f.text_field :comment, class: "form-control" %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :memorized_on, "思い出の日付" %></th>
+      <td><%= f.date_field :memorized_on, class: "form-control" %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :location, "思い出のロケーション" %></th>
+      <td><%= f.text_field :location, value: @location, class: "form-control" %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :tag_name, "タグ（複数タグ登録は，単語間にコンマ[,]またはスペースを挿入．）" %></th>
+      <td><%= f.text_field :tag_name, value: @tag_list, placeholder: "複数タグ登録は，単語間にコンマ[,]またはスペースを挿入．",  class: "form-control" %></td>
+    </tr>
+    <tr>
+      <th>公開範囲（公開先グループを選択してください．未選択で非公開にできます．）</th>
+      <td>
+        <%= f.collection_check_boxes(:group_ids, @groups, :id, :group_name) do |b| %>
+          <span class="bg-success">
+            <%= b.check_box %>
+            <%= image_tag b.object.group_avatar, size: "32x32", class: "rounded-circle me-2" if b.object.group_avatar.attached? %>
+            <%= b.object.group_name %>
+          </span>
+        <% end %>
+      </td>
+    </tr>
+    <tr>
+      <th><%= f.label :post_images, "思い出の画像" %></th>
+      <td><%= f.file_field :post_images, multiple: true, class: "form-control", accept: "image/jpeg,image/gif,image/png" %></td>
+    </tr>
+    <tr>
+      <th><%= f.label :description, "詳細・補足" %></th>
+      <td><%= f.text_area :description, class: "form-control" %></td>
+    </tr>
+  </table>
+<% end %>
