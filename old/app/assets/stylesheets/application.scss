@@ -1,0 +1,14 @@
+@import "bootstrap";
+@import "font-awesome";
+
+.notice {
+  position: absolute;
+  padding-left: 1.2rem;
+  padding-top: 0rem;
+  color: #efa04c;
+}
+
+#map {
+  height: 600px;
+  width: 600px;
+}
