@@ -2,7 +2,7 @@ import { REQUEST_STATE } from "../constants";
 
 export const initialUsersState = {
   fetchState: REQUEST_STATE.INITIAL,
-  usersList: [],
+  userList: [],
 };
 
 export const usersActionTypes = {
@@ -20,7 +20,7 @@ export const usersReducer = (state, action) => {
     case usersActionTypes.FETCH_SUCCESS:
       return {
         fetchState: REQUEST_STATE.OK,
-        usersList: action.payload.users,
+        userList: action.payload.users,
       };
     default:
       throw new Error();
