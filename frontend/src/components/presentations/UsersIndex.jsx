@@ -8,6 +8,7 @@ const cols = [
   { field: "email", headerName: "メールアドレス", width: 200 },
   { field: "admin", headerName: "管理者権限" },
   { field: "guest", headerName: "ゲスト権限" },
+  { field: "user_avatar", headerName: "アバター" },
   { field: "created_at", headerName: "作成日", width: 200 },
   { field: "updated_at", headerName: "更新日", width: 200 },
 ];
@@ -19,8 +20,9 @@ export const UsersIndex = ({ user, onClickUser }) => {
     email: user.email,
     admin: user.admin,
     guest: user.guest,
-    created_at: user.created_at,
-    updated_at: user.updated_at,
+    user_avatar: user.user_avatar,
+    created_at: `${user.created_at}`.slice(0, 10),
+    updated_at: `${user.updated_at}`.slice(0, 10),
   }];
 
   return (
@@ -31,7 +33,7 @@ export const UsersIndex = ({ user, onClickUser }) => {
 }
 
 UsersIndex.propTypes = {
-  user: PropTypes.arrayOf(
+  user: PropTypes.objectOf(
     PropTypes.shape({
       id: PropTypes.number.isRequired,
       user_name: PropTypes.string.isRequired,

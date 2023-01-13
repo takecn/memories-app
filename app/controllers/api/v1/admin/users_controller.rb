@@ -6,7 +6,15 @@ module Api
 
       def index
         users = User.all
-        render json: { users: users }, status: :ok
+        # users_with_avatarの取得はモデルメソッドに切り出す．
+        users_with_avatar = users.map do |user|
+          if user.user_avatar.attached?
+            user.attributes.merge(user_avatar: url_for(user.user_avatar))
+          else
+            user.attributes.merge(user_avatar: nil)
+          end
+        end
+        render json: { users: users_with_avatar }, status: :ok
       end
 
       def new
@@ -24,18 +32,22 @@ module Api
         end
       end
 
-      def edit
-        @user = User.find(params[:id])
-      end
-
       def update
-        @user = User.find(params[:id])
-        if @user.update(user_params)
-          flash[:success] = "アカウント「#{@user.user_name}」を更新しました．"
-          redirect_to admin_user_path(@user.id)
+        user = User.find(params[:id])
+        if user.update(user_params)
+          if params[:user_avatar]
+            user.user_avatar.purge
+            user.user_avatar.attach(params[:user_avatar])
+          end
+          # user_with_avatarの取得はモデルメソッドに切り出す．
+          if user.user_avatar.attached?
+            user_with_avatar = user.attributes.merge(user_avatar: url_for(user.user_avatar))
+          else
+            user_with_avatar = user.attributes.merge(user_avatar: nil)
+          end
+          render json: { user: user_with_avatar, message: "ユーザー情報が更新されました" }, status: :created
         else
-          flash.now[:danger] = "アカウント更新できませんでした．"
-          render :edit
+          render json: { error_messages: user.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
@@ -49,7 +61,7 @@ module Api
       private
 
       def user_params
-        params.require(:user).permit(:user_name, :email, :password, :password_confirmation, :user_profile, :admin, :guest, :user_avatar)
+        params.permit(:user_name, :email, :password, :password_confirmation, :user_profile, :admin, :guest, :user_avatar)
       end
 
       def edit_or_delete_permission_required
