@@ -44,5 +44,5 @@ UsersIndex.propTypes = {
       updated_at: PropTypes.string.isRequired,
     })
   ).isRequired,
-  onClickUser: PropTypes.func.isRequired
+  onClickUser: PropTypes.func.isRequired,
 };
