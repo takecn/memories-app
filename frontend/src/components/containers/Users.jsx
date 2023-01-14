@@ -1,9 +1,10 @@
 import React, { memo, useReducer, useEffect, useState } from "react";
-import { Alert } from "@mui/material";
-import { fetchUsersIndex, putUser, deleteUser } from "../../apis/users";
+import { Alert, Button } from "@mui/material";
+import { fetchUsersIndex, postUser, putUser, deleteUser } from "../../apis/users";
 import { REQUEST_STATE } from "../../constants";
 import { initialUsersState, usersActionTypes, usersReducer } from "../../reducers/users";
 import { UsersIndex } from '../presentations/UsersIndex.jsx';
+import { UserCreateDialog } from '../presentations/UserCreateDialog.jsx';
 import { UserDialog } from '../presentations/UserDialog.jsx';
 import { UserEditDialog } from '../presentations/UserEditDialog.jsx';
 import { UserDeleteDialog } from '../presentations/UserDeleteDialog.jsx';
@@ -12,6 +13,7 @@ import { CircularIndeterminate } from '../presentations/CircularIndeterminate.js
 export const Users = memo(() => {
   const [usersState, dispatch] = useReducer(usersReducer, initialUsersState);
   const [state, setState] = useState({
+    isOpenUserCreateDialog: false,
     isOpenUserDialog: false,
     isOpenUserEditDialog: false,
     isOpenUserDeleteDialog: false,
@@ -22,6 +24,8 @@ export const Users = memo(() => {
   const [errors, setErrors] = useState();
   const [userName, setUserName] = useState();
   const [userEmail, setUserEmail] = useState();
+  const [userPassword, setUserPassword] = useState();
+  const [userPasswordConfirmation, setUserPasswordConfirmation] = useState();
   const [isUserAdmin, setIsUserAdmin] = useState();
   const [isUserGuest, setIsUserGuest] = useState();
   const [userProfile, setUserProfile] = useState();
@@ -49,6 +53,66 @@ export const Users = memo(() => {
     setPreview(window.URL.createObjectURL(file))
   };
 
+  const createFormData = () => {
+    const formData = new FormData();
+    // user_nameとemailのみ，nullを送信する．presenceバリデーションエラーを表示するため．
+    // undefinedは送信しない．データが"undefined"に更新されてしまうため．
+    if (userName !== undefined) formData.append("user_name", userName);
+    if (userEmail !== undefined) formData.append("email", userEmail);
+    if (userPassword !== undefined) formData.append("password", userPassword);
+    if (userPasswordConfirmation !== undefined) formData.append("password_confirmation", userPasswordConfirmation);
+    // 上記以外は，編集された場合のみFormDataに格納する．
+    if (isUserAdmin) formData.append("admin", isUserAdmin);
+    if (isUserGuest) formData.append("guest", isUserGuest);
+    if (userProfile) formData.append("user_profile", userProfile);
+    if (userAvatar) formData.append("user_avatar", userAvatar);
+
+    return formData
+  };
+
+  const userCreate = () => {
+    // 各種state内いずれかが変更されたときのみ，FormDataを送信する（未変更を示すundefinedを弾く）．
+    if (userName !== undefined ||
+      userEmail !== undefined ||
+      userPassword !== undefined ||
+      userPasswordConfirmation !== undefined ||
+      isUserAdmin !== undefined ||
+      isUserGuest !== undefined ||
+      userProfile !== undefined ||
+      userAvatar !== undefined) {
+
+      const formData = createFormData();
+
+      // ユーザー登録情報をサーバーサイドに送る．
+      postUser({formData})
+      .then((data) => {
+        // userが登録された場合，登録内容を反映する．
+        if (data.user) {
+          setState({
+            ...state,
+            isOpenUserDialog: true,
+            isOpenUserCreateDialog: false,
+            selectedUser: data.user,
+            message: data.message,
+          })
+          setErrors()
+          setUserName()
+          setUserEmail()
+          setUserPassword()
+          setUserPasswordConfirmation()
+          setIsUserAdmin()
+          setIsUserGuest()
+          setUserProfile()
+          setUserAvatar()
+          setPreview()
+        } else {
+          // userが登録されていない場合，エラーメッセージをセットする．
+          setErrors(data.error_messages)
+        }
+      })
+    }
+  };
+
   const userUpdate = () => {
     // 各種state内いずれかが変更されたときのみ，FormDataを送信する（未変更を示すundefinedを弾く）．
     if (userName !== undefined ||
@@ -58,45 +122,35 @@ export const Users = memo(() => {
       userProfile !== undefined ||
       userAvatar !== undefined) {
 
-      const formData = new FormData();
-      // user_nameとemailのみ，nullを送信する．presenceバリデーションエラーを表示するため．
-      // undefinedは送信しない．データが"undefined"に更新されてしまうため．
-      if (userName !== undefined) formData.append("user_name", userName);
-      if (userEmail !== undefined) formData.append("email", userEmail);
-      // 上記以外は，編集された場合のみFormDataに格納する．
-      if (isUserAdmin) formData.append("admin", isUserAdmin);
-      if (isUserGuest) formData.append("guest", isUserGuest);
-      if (userProfile) formData.append("user_profile", userProfile);
-      if (userAvatar) formData.append("user_avatar", userAvatar);
+      const formData = createFormData();
 
       // ユーザー編集情報をサーバーサイドに送る．
       putUser({
         userId: state.selectedUser.id,
         formData,
       }).then((data) => {
-          // userが更新された場合，更新内容を反映する．
-          if (data.user) {
-            setState({
-              ...state,
-              isOpenUserDialog: true,
-              isOpenUserEditDialog: false,
-              selectedUser: data.user,
-              message: data.message,
-            })
-            setErrors()
-            setUserName()
-            setUserEmail()
-            setIsUserAdmin()
-            setIsUserGuest()
-            setUserProfile()
-            setUserAvatar()
-            setPreview()
-          } else {
-            // userが更新されていない場合，エラーメッセージをセットする．
-            setErrors(data.error_messages)
-          }
+        // userが更新された場合，更新内容を反映する．
+        if (data.user) {
+          setState({
+            ...state,
+            isOpenUserDialog: true,
+            isOpenUserEditDialog: false,
+            selectedUser: data.user,
+            message: data.message,
+          })
+          setErrors()
+          setUserName()
+          setUserEmail()
+          setIsUserAdmin()
+          setIsUserGuest()
+          setUserProfile()
+          setUserAvatar()
+          setPreview()
+        } else {
+          // userが更新されていない場合，エラーメッセージをセットする．
+          setErrors(data.error_messages)
         }
-      )
+      })
     }
   };
 
@@ -123,6 +177,17 @@ export const Users = memo(() => {
         {state.deleteMessage &&
           <Alert severity="success">{state.deleteMessage}</Alert>
         }
+        <Button
+          variant="outlined"
+          onClick={() =>
+            setState({
+              ...state,
+              isOpenUserCreateDialog: true,
+            })
+          }
+        >
+          ユーザー登録する
+        </Button>
         {usersState.userList.map((user) =>
           <div key={user.id}>
             <UsersIndex
@@ -139,6 +204,46 @@ export const Users = memo(() => {
           </div>
         )}
         </>
+      }
+
+      {/* ユーザー登録モーダル */}
+      {
+        state.isOpenUserCreateDialog &&
+        <UserCreateDialog
+          isOpen={state.isOpenUserCreateDialog}
+          preview={preview}
+          errors={errors}
+          onClose={() => {
+            setState({
+              ...state,
+              isOpenUserCreateDialog: false,
+            })
+            // 編集を確定せずに閉じた場合は，各種stateを空にする．
+            setErrors()
+            setUserName()
+            setUserEmail()
+            setUserPassword()
+            setUserPasswordConfirmation()
+            setIsUserAdmin()
+            setIsUserGuest()
+            setUserProfile()
+            setUserAvatar()
+            setPreview()
+            }
+          }
+          onChangeUserName={(e) => setUserName(e.target.value)}
+          onChangeUserEmail={(e) => setUserEmail(e.target.value)}
+          onChangeUserPassword={(e) => setUserPassword(e.target.value)}
+          onChangeUserPasswordConfirmation={(e) => setUserPasswordConfirmation(e.target.value)}
+          onChangeUserAdmin={(e) => setIsUserAdmin(e.target.value)}
+          onChangeUserGuest={(e) => setIsUserGuest(e.target.value)}
+          onChangeUserProfile={(e) => setUserProfile(e.target.value)}
+          onChangeUserAvatar={(e) => {
+            setUserAvatar(e.target.files[0])
+            previewUserAvatar(e)
+          }}
+          onClick={userCreate}
+        />
       }
 
       {/* ユーザー詳細モーダル */}
@@ -193,7 +298,7 @@ export const Users = memo(() => {
             setUserProfile()
             setUserAvatar()
             setPreview()
-          }
+            }
           }
           onChangeUserName={(e) => setUserName(e.target.value)}
           onChangeUserEmail={(e) => setUserEmail(e.target.value)}
