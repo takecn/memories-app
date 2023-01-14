@@ -1,14 +1,31 @@
 import axios from "axios";
-import { usersIndex, user } from "../urls/index";
+import { users, user } from "../urls/index";
 
 export const fetchUsersIndex = () => {
   return axios
-    .get(usersIndex)
+    .get(users)
     .then((response) => {
       return response.data;
     })
     .catch((error) => {
       throw error;
+    });
+};
+
+export const postUser = (params) => {
+  const { formData } = params;
+
+  return axios
+    .post(users, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      return error.response.data;
     });
 };
 
