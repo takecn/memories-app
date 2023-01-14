@@ -17,25 +17,28 @@ module Api
         render json: { users: users_with_avatar }, status: :ok
       end
 
-      def new
-        @user = User.new
-      end
-
       def create
-        @user = User.new(user_params)
-        if @user.save
-          flash[:success] = "アカウント「#{@user.user_name}」を登録しました．"
-          redirect_to admin_users_path
+        user = User.new(user_params)
+        if user.save
+          if user_params[:user_avatar]
+            user.user_avatar.attach(user_params[:user_avatar])
+          end
+          # user_with_avatarの取得はモデルメソッドに切り出す．
+          if user.user_avatar.attached?
+            user_with_avatar = user.attributes.merge(user_avatar: url_for(user.user_avatar))
+          else
+            user_with_avatar = user.attributes.merge(user_avatar: nil)
+          end
+          render json: { user: user_with_avatar, message: "ユーザーを登録しました" }, status: :created
         else
-          flash.now[:danger] = "アカウント登録できませんでした．"
-          render :new
+          render json: { error_messages: user.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
       def update
         user = User.find(params[:id])
         if user.update(user_params)
-          if params[:user_avatar]
+          if user_params[:user_avatar]
             user.user_avatar.purge
             user.user_avatar.attach(user_params[:user_avatar])
           end
@@ -45,7 +48,7 @@ module Api
           else
             user_with_avatar = user.attributes.merge(user_avatar: nil)
           end
-          render json: { user: user_with_avatar, message: "ユーザー情報が更新されました" }, status: :created
+          render json: { user: user_with_avatar, message: "ユーザー情報を更新しました" }, status: :created
         else
           render json: { error_messages: user.errors.full_messages }, status: :unprocessable_entity
         end
