@@ -2,7 +2,7 @@ module Api
   module V1
     class Admin::UsersController < ApplicationController
       # skip_before_action :login_required, only: [:new, :create] # 一時的にコメントアウト
-      before_action :edit_or_delete_permission_required, only: [:edit, :destroy]
+      # before_action :edit_or_delete_permission_required, only: [:edit, :destroy]
 
       def index
         users = User.all
@@ -37,7 +37,7 @@ module Api
         if user.update(user_params)
           if params[:user_avatar]
             user.user_avatar.purge
-            user.user_avatar.attach(params[:user_avatar])
+            user.user_avatar.attach(user_params[:user_avatar])
           end
           # user_with_avatarの取得はモデルメソッドに切り出す．
           if user.user_avatar.attached?
@@ -52,10 +52,9 @@ module Api
       end
 
       def destroy
-        @user = User.find(params[:id])
-        @user.destroy
-        flash[:success] = "アカウント「#{@user.user_name}」を削除しました．"
-        redirect_to admin_users_path
+        user = User.find(params[:id])
+        user.destroy
+        render json: { message: "「#{user.user_name}」を削除しました" }, status: :ok
       end
 
       private

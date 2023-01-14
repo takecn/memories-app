@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import UpdateIcon from '@mui/icons-material/Update';
 import PropTypes from 'prop-types';
-// import UserAvatar from "../../images/IMG_5612.jpeg";
 
 export const UserEditDialog = ({
   isOpen,
@@ -138,6 +137,5 @@ UserEditDialog.propTypes = {
   onChangeUserGuest: PropTypes.func.isRequired,
   onChangeUserProfile: PropTypes.func.isRequired,
   onChangeUserAvatar: PropTypes.func.isRequired,
-  // previewUserAvatar: PropTypes.func.isRequired,
   onClick: PropTypes.func.isRequired,
 };

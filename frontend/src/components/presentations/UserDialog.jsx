@@ -14,9 +14,15 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PropTypes from 'prop-types';
-// import UserAvatar from "../../images/IMG_5612.jpeg";
 
-export const UserDialog = ({ isOpen, user, message, onClose, onClickUserEdit }) => {
+export const UserDialog = ({
+  isOpen,
+  user,
+  message,
+  onClose,
+  onClickUserEdit,
+  onClickUserDelete,
+  }) => {
   return (
     <Dialog open={isOpen} onClose={onClose}>
       {message &&
@@ -70,14 +76,19 @@ export const UserDialog = ({ isOpen, user, message, onClose, onClickUserEdit }) 
       </DialogContent>
       <DialogActions>
         <Button
+          startIcon={<DeleteIcon />}
+          onClick={onClickUserDelete}
+        >
+          削除する
+        </Button>
+        <Button
           variant="outlined"
           startIcon={<EditIcon />}
-          onClick={() => onClickUserEdit(user)}
+          onClick={onClickUserEdit}
           aria-hidden="true"
         >
           編集する
         </Button>
-        <Button variant="outlined" startIcon={<DeleteIcon />}>削除する</Button>
       </DialogActions>
     </Dialog>
   )
@@ -96,8 +107,8 @@ UserDialog.propTypes = {
       updated_at: PropTypes.string.isRequired,
     })
   ).isRequired,
-  // userAvatar: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   onClickUserEdit: PropTypes.func.isRequired,
+  onClickUserDelete: PropTypes.func.isRequired,
 };

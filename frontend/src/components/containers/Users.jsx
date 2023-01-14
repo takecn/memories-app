@@ -1,19 +1,23 @@
 import React, { memo, useReducer, useEffect, useState } from "react";
-import { fetchUsersIndex, putUserUpdate } from "../../apis/users";
+import { Alert } from "@mui/material";
+import { fetchUsersIndex, putUser, deleteUser } from "../../apis/users";
 import { REQUEST_STATE } from "../../constants";
 import { initialUsersState, usersActionTypes, usersReducer } from "../../reducers/users";
 import { UsersIndex } from '../presentations/UsersIndex.jsx';
 import { UserDialog } from '../presentations/UserDialog.jsx';
 import { UserEditDialog } from '../presentations/UserEditDialog.jsx';
+import { UserDeleteDialog } from '../presentations/UserDeleteDialog.jsx';
 import { CircularIndeterminate } from '../presentations/CircularIndeterminate.jsx';
 
 export const Users = memo(() => {
-  const [usersState, dispatch] = useReducer(usersReducer, initialUsersState)
+  const [usersState, dispatch] = useReducer(usersReducer, initialUsersState);
   const [state, setState] = useState({
     isOpenUserDialog: false,
     isOpenUserEditDialog: false,
+    isOpenUserDeleteDialog: false,
     selectedUser: null,
     message: null,
+    deleteMessage: null
   });
   const [errors, setErrors] = useState();
   const [userName, setUserName] = useState();
@@ -37,7 +41,7 @@ export const Users = memo(() => {
   };
 
   // ユーザーのstateが更新されるたびにユーザー一覧ページをレンダリングする．
-  useEffect(fetchUserList, [state.selectedUser]);
+  useEffect(fetchUserList, [state.selectedUser, state.deleteMessage]);
 
   // ユーザー編集モーダルで選択した画像のアバタープレビューを表示する．
   const previewUserAvatar = (e) => {
@@ -45,9 +49,7 @@ export const Users = memo(() => {
     setPreview(window.URL.createObjectURL(file))
   };
 
-  const userUpdate = (e) => {
-    e.preventDefault();
-
+  const userUpdate = () => {
     // 各種state内いずれかが変更されたときのみ，FormDataを送信する（未変更を示すundefinedを弾く）．
     if (userName !== undefined ||
       userEmail !== undefined ||
@@ -68,7 +70,7 @@ export const Users = memo(() => {
       if (userAvatar) formData.append("user_avatar", userAvatar);
 
       // ユーザー編集情報をサーバーサイドに送る．
-      putUserUpdate({
+      putUser({
         userId: state.selectedUser.id,
         formData,
       }).then((data) => {
@@ -79,7 +81,7 @@ export const Users = memo(() => {
               isOpenUserDialog: true,
               isOpenUserEditDialog: false,
               selectedUser: data.user,
-              message: data.message
+              message: data.message,
             })
             setErrors()
             setUserName()
@@ -98,6 +100,18 @@ export const Users = memo(() => {
     }
   };
 
+  const userDelete = () => {
+    deleteUser({userId: state.selectedUser.id})
+    .then((data) => {
+      setState({
+        ...state,
+        isOpenUserDialog: false,
+        isOpenUserDeleteDialog: false,
+        deleteMessage: data.message,
+      })
+    })
+  };
+
   return (
     <>
       {/* ユーザー一覧 */}
@@ -105,7 +119,11 @@ export const Users = memo(() => {
         usersState.fetchState === REQUEST_STATE.LOADING ?
           <CircularIndeterminate />
         :
-        usersState.userList.map((user) =>
+        <>
+        {state.deleteMessage &&
+          <Alert severity="success">{state.deleteMessage}</Alert>
+        }
+        {usersState.userList.map((user) =>
           <div key={user.id}>
             <UsersIndex
               user={user}
@@ -114,11 +132,13 @@ export const Users = memo(() => {
                   ...state,
                   isOpenUserDialog: true,
                   selectedUser: user,
+                  deleteMessage: null,
                 })
               }
             />
           </div>
-        )
+        )}
+        </>
       }
 
       {/* ユーザー詳細モーダル */}
@@ -139,6 +159,12 @@ export const Users = memo(() => {
             setState({
               ...state,
               isOpenUserEditDialog: true,
+            })
+          }
+          onClickUserDelete={() =>
+            setState({
+              ...state,
+              isOpenUserDeleteDialog: true,
             })
           }
         />
@@ -179,6 +205,30 @@ export const Users = memo(() => {
             previewUserAvatar(e)
           }}
           onClick={userUpdate}
+        />
+      }
+
+      {/* ユーザー削除モーダル */}
+      {
+        state.isOpenUserDeleteDialog &&
+        <UserDeleteDialog
+          isOpen={state.isOpenUserDeleteDialog}
+          user={state.selectedUser}
+          onClose={() =>
+            setState({
+              ...state,
+              isOpenUserDialog: true,
+              isOpenUserDeleteDialog: false,
+            })
+          }
+          onClickDelete={userDelete}
+          onClickCloseDelete={() =>
+            setState({
+              ...state,
+              isOpenUserDialog: true,
+              isOpenUserDeleteDialog: false,
+            })
+          }
         />
       }
     </>
