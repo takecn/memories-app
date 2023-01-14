@@ -1,30 +1,43 @@
 import axios from "axios";
-import { usersIndex, userUpdate } from "../urls/index";
+import { usersIndex, user } from "../urls/index";
 
 export const fetchUsersIndex = () => {
   return axios
     .get(usersIndex)
-    .then((res) => {
-      return res.data;
+    .then((response) => {
+      return response.data;
     })
-    .catch((e) => {
-      throw e;
+    .catch((error) => {
+      throw error;
     });
 };
 
-export const putUserUpdate = (params) => {
+export const putUser = (params) => {
   const { userId, formData } = params;
 
   return axios
-    .put(userUpdate(userId), formData, {
+    .put(user(userId), formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     })
-    .then((res) => {
-      return res.data;
+    .then((response) => {
+      return response.data;
     })
     .catch((error) => {
       return error.response.data;
+    });
+};
+
+export const deleteUser = (params) => {
+  const { userId } = params;
+
+  return axios
+    .delete(user(userId))
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      throw error;
     });
 };
