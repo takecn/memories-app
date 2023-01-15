@@ -1,14 +1,14 @@
 module Api
   module V1
     class PostsController < ApplicationController
-      before_action :show_permission_required, only: :show
-      before_action :edit_permission_required, only: :edit
-      before_action :delete_permission_required, only: :destroy
+      #! before_action :show_permission_required, only: :show
+      #! before_action :edit_permission_required, only: :edit
+      #! before_action :delete_permission_required, only: :destroy
 
       def home
         # ユーザーの閲覧可能な投稿を配列で取得し，配列からActiveRecordを取得する．
         posts_viewed_by_current_user = []
-        Post.extract_posts(current_user, posts_viewed_by_current_user, Post.all)
+        #! Post.extract_posts(current_user, posts_viewed_by_current_user, Post.all)
         @posts_viewed_by_current_user = Post.where(id: posts_viewed_by_current_user.map(&:id))
 
         # 上記で取得した投稿に紐つく情報を抽出し，検索フォームを生成する．
@@ -32,7 +32,10 @@ module Api
         posts_maps = []
         Post.extract_maps(@posts.eager_load(:map), posts_maps)
         maps = posts_maps.compact_blank.uniq
-        gon.places = Map.where(id: maps.map(&:id))
+        #! gon.places = Map.where(id: maps.map(&:id))
+
+        postss = Post.all
+        render json: { posts: postss }, status: :ok
       end
 
       def index
@@ -44,7 +47,6 @@ module Api
           preload(:disclosures, :groups, post_images_attachments: :blob).
           where(id: posts_viewed_by_current_user.map(&:id)).
           order(created_at: :desc)
-        # @posts = Post.eager_load(:user, :map).preload(:groups, :disclosures, post_images_attachments: :blob).order(id: :DESC)
       end
 
       def new
