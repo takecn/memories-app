@@ -174,35 +174,35 @@ export const Users = memo(() => {
           <CircularIndeterminate />
         :
         <>
-        {state.deleteMessage &&
-          <Alert severity="success">{state.deleteMessage}</Alert>
-        }
-        <Button
-          variant="outlined"
-          onClick={() =>
-            setState({
-              ...state,
-              isOpenUserCreateDialog: true,
-            })
+          {state.deleteMessage &&
+            <Alert severity="success">{state.deleteMessage}</Alert>
           }
-        >
-          ユーザー登録する
-        </Button>
-        {usersState.userList.map((user) =>
-          <div key={user.id}>
-            <UsersIndex
-              user={user}
-              onClickUser={() =>
-                setState({
-                  ...state,
-                  isOpenUserDialog: true,
-                  selectedUser: user,
-                  deleteMessage: null,
-                })
-              }
-            />
-          </div>
-        )}
+          <Button
+            variant="outlined"
+            onClick={() =>
+              setState({
+                ...state,
+                isOpenUserCreateDialog: true,
+              })
+            }
+          >
+            ユーザー登録する
+          </Button>
+          {usersState.userList.map((user) =>
+            <div key={user.id}>
+              <UsersIndex
+                user={user}
+                onClickUser={() =>
+                  setState({
+                    ...state,
+                    isOpenUserDialog: true,
+                    selectedUser: user,
+                    deleteMessage: null,
+                  })
+                }
+              />
+            </div>
+          )}
         </>
       }
 
