@@ -46,24 +46,24 @@ class Post < ApplicationRecord
     end
   end
 
-  # ログインユーザーが閲覧できる投稿を抽出するメソッド
-  def self.extract_posts(user, posts, all_posts)
-    all_posts.each do |post|
-      if post.user_id == user.id
-        # current_userの投稿であれば閲覧できる．
-        posts << post
-      else
-        post.groups.preload(:group_users).each do |group|
-          group.group_users.each do |group_user|
-            if group_user.accepted? && (group_user.user_id == user.id)
-              # 他ユーザーの投稿のうち，公開先グループにcurrent_userが所属している投稿であれば閲覧できる．
-              posts << post
-            end
-          end
-        end
-      end
-    end
-  end
+  #! # ログインユーザーが閲覧できる投稿を抽出するメソッド
+  # def self.extract_posts(user, posts, all_posts)
+  #   all_posts.each do |post|
+  #     if post.user_id == user.id
+  #       # current_userの投稿であれば閲覧できる．
+  #       posts << post
+  #     else
+  #       post.groups.preload(:group_users).each do |group|
+  #         group.group_users.each do |group_user|
+  #           if group_user.accepted? && (group_user.user_id == user.id)
+  #             # 他ユーザーの投稿のうち，公開先グループにcurrent_userが所属している投稿であれば閲覧できる．
+  #             posts << post
+  #           end
+  #         end
+  #       end
+  #     end
+  #   end
+  # end
 
   # 検索条件を編成するメソッド
   def self.search(search_params, user)
