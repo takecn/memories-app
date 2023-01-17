@@ -3,6 +3,7 @@ import { REQUEST_STATE } from "../constants";
 export const initialPostsState = {
   fetchState: REQUEST_STATE.INITIAL,
   postList: [],
+  userList: [],
 };
 
 export const postsActionTypes = {
@@ -21,6 +22,7 @@ export const postsReducer = (state, action) => {
       return {
         fetchState: REQUEST_STATE.OK,
         postList: action.payload.posts,
+        userList: action.payload.users,
       };
     default:
       throw new Error();

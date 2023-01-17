@@ -35,7 +35,16 @@ module Api
         #! gon.places = Map.where(id: maps.map(&:id))
 
         postss = Post.all
-        render json: { posts: postss }, status: :ok
+        userss = User.all
+        # users_with_avatarの取得はモデルメソッドに切り出す．
+        users_with_avatar = userss.map do |user|
+          if user.user_avatar.attached?
+            user.attributes.merge(user_avatar: url_for(user.user_avatar))
+          else
+            user.attributes.merge(user_avatar: nil)
+          end
+        end
+        render json: { posts: postss, users: users_with_avatar }, status: :ok
       end
 
       def index
