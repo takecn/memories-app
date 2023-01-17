@@ -105,6 +105,7 @@ UserDialog.propTypes = {
       guest: PropTypes.bool.isRequired,
       created_at: PropTypes.string.isRequired,
       updated_at: PropTypes.string.isRequired,
+      user_avatar: PropTypes.string.isRequired,
     })
   ).isRequired,
   message: PropTypes.string.isRequired,
