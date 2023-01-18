@@ -22,6 +22,7 @@ export const UserDialog = ({
   onClose,
   onClickUserEdit,
   onClickUserDelete,
+  isHomePage,
   }) => {
   return (
     <Dialog open={isOpen} onClose={onClose}>
@@ -74,22 +75,24 @@ export const UserDialog = ({
           </FormControl>
         </div>
       </DialogContent>
-      <DialogActions>
-        <Button
-          startIcon={<DeleteIcon />}
-          onClick={onClickUserDelete}
-        >
-          削除する
-        </Button>
-        <Button
-          variant="outlined"
-          startIcon={<EditIcon />}
-          onClick={onClickUserEdit}
-          aria-hidden="true"
-        >
-          編集する
-        </Button>
-      </DialogActions>
+      {isHomePage ||
+        <DialogActions>
+          <Button
+            startIcon={<DeleteIcon />}
+            onClick={onClickUserDelete}
+          >
+            削除する
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<EditIcon />}
+            onClick={onClickUserEdit}
+            aria-hidden="true"
+          >
+            編集する
+          </Button>
+        </DialogActions>
+      }
     </Dialog>
   )
 }
@@ -112,4 +115,5 @@ UserDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   onClickUserEdit: PropTypes.func.isRequired,
   onClickUserDelete: PropTypes.func.isRequired,
+  isHomePage: PropTypes.bool.isRequired,
 };

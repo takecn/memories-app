@@ -11,19 +11,27 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CancelIcon from '@mui/icons-material/Cancel';
 import PropTypes from 'prop-types';
 
-export const UserDeleteDialog = ({
+export const DeleteDialog = ({
   isOpen,
+  session,
   user,
+  post,
   onClose,
   onClickDelete,
   onClickCloseDelete,
   }) => {
   return (
     <Dialog open={isOpen} onClose={onClose}>
-      <DialogTitle>ユーザー削除</DialogTitle>
+      <DialogTitle>
+        {session && `ログアウト`}
+        {user && `ユーザー削除`}
+        {post && `投稿削除`}
+      </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          {`本当に「${user.user_name}」を削除しますか？`}
+          {session && `ログアウトしますか？`}
+          {user && `本当に「${user.user_name}」を削除しますか？`}
+          {post && `本当にこの投稿を削除しますか？`}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
@@ -32,25 +40,35 @@ export const UserDeleteDialog = ({
           onClick={onClickDelete}
           autoFocus
         >
-          削除する
+          {session && `ログアウトする`}
+          {user && `削除する`}
+          {post && `削除する`}
         </Button>
         <Button
           variant="outlined"
           onClick={onClickCloseDelete}
           startIcon={<CancelIcon />}
         >
-          削除しない
+          {session && `ログアウトしない`}
+          {user && `削除しない`}
+          {post && `削除しない`}
         </Button>
       </DialogActions>
     </Dialog>
   )
 }
 
-UserDeleteDialog.propTypes = {
+DeleteDialog.propTypes = {
   isOpen: PropTypes.bool.isRequired,
+  session: PropTypes.bool.isRequired,
   user: PropTypes.objectOf(
     PropTypes.shape({
       user_name: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  post: PropTypes.objectOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
     })
   ).isRequired,
   onClose: PropTypes.func.isRequired,

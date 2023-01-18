@@ -9,3 +9,4 @@ export const user = (userId) =>
   `${DEFAULT_API_LOCALHOST}/admin/users/${userId}`;
 
 export const posts = `${DEFAULT_API_LOCALHOST}/home`;
+export const post = (postId) => `${DEFAULT_API_LOCALHOST}/posts/${postId}`;

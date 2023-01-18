@@ -37,11 +37,12 @@ export const Home = (props) => {
             alt={user.user_name}
             src={user.user_avatar}
             aria-label="recipe"
+            onClick={onClickUser}
+            style={{ cursor: 'pointer' }}
           />
         }
         title={user.user_name}
         subheader={`投稿日 ${post.created_at}`.slice(0, 14)}
-        onClick={onClickUser}
       />
       <Swiper
         spaceBetween={30}
@@ -80,7 +81,7 @@ export const Home = (props) => {
           />
         </SwiperSlide>
       </Swiper>
-      <CardContent onClick={onClickPost}>
+      <CardContent onClick={onClickPost} style={{ cursor: 'pointer' }}>
         <div>
           <EventIcon />
           いつ？

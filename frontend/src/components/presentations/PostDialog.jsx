@@ -5,7 +5,7 @@ import {
   DialogContent,
   DialogActions,
   Stack,
-  // Alert,
+  Alert,
   Avatar,
   FormControl,
   FormLabel,
@@ -19,18 +19,18 @@ export const PostDialog = ({
   isOpen,
   post,
   user,
-  // message,
+  message,
   onClose,
   // onClickUserEdit,
-  // onClickUserDelete,
+  onClickPostDelete,
   }) => {
   return (
     <Dialog open={isOpen} onClose={onClose}>
-      {/* {message &&
+      {message &&
         <Stack>
           <Alert severity="success">{message}</Alert>
         </Stack>
-      } */}
+      }
       <DialogTitle>
         <Stack direction="row">
           <Avatar alt={user.user_name} src={user.user_avatar} style={{marginRight: "10px"}} />
@@ -121,7 +121,7 @@ export const PostDialog = ({
       <DialogActions>
         <Button
           startIcon={<DeleteIcon />}
-          // onClick={onClickUserDelete}
+          onClick={onClickPostDelete}
         >
           削除する
         </Button>
@@ -154,8 +154,8 @@ PostDialog.propTypes = {
       user_avatar: PropTypes.string.isRequired,
     })
   ).isRequired,
-  // message: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   // onClickUserEdit: PropTypes.func.isRequired,
-  // onClickUserDelete: PropTypes.func.isRequired,
+  onClickPostDelete: PropTypes.func.isRequired,
 };

@@ -14,7 +14,7 @@ module Api
         user = User.find_by(email: session_params[:email])
         if user&.authenticate(session_params[:password])
           session[:user_id] = user.id
-          render json: { message: "「#{user.user_name}」でログインしました．" }, status: :ok
+          render json: { user: user, message: "「#{user.user_name}」でログインしました．" }, status: :ok
         else
           if session_data.errors.present?
             render json: { error_messages: session_data.errors.full_messages }, status: :unprocessable_entity
