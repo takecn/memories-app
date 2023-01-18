@@ -7,7 +7,7 @@ import { UsersIndex } from '../presentations/UsersIndex.jsx';
 import { UserCreateDialog } from '../presentations/UserCreateDialog.jsx';
 import { UserDialog } from '../presentations/UserDialog.jsx';
 import { UserEditDialog } from '../presentations/UserEditDialog.jsx';
-import { UserDeleteDialog } from '../presentations/UserDeleteDialog.jsx';
+import { DeleteDialog } from '../presentations/DeleteDialog.jsx';
 import { CircularIndeterminate } from '../presentations/CircularIndeterminate.jsx';
 
 export const Users = memo(() => {
@@ -19,7 +19,6 @@ export const Users = memo(() => {
     isOpenUserDeleteDialog: false,
     selectedUser: null,
     message: null,
-    deleteMessage: null
   });
   const [errors, setErrors] = useState();
   const [userName, setUserName] = useState();
@@ -45,7 +44,7 @@ export const Users = memo(() => {
   };
 
   // ユーザーのstateが更新されるたびにユーザー一覧ページをレンダリングする．
-  useEffect(fetchUserList, [state.selectedUser, state.deleteMessage]);
+  useEffect(fetchUserList, [state.selectedUser]);
 
   // ユーザー編集モーダルで選択した画像のアバタープレビューを表示する．
   const previewUserAvatar = (e) => {
@@ -149,7 +148,8 @@ export const Users = memo(() => {
         ...state,
         isOpenUserDialog: false,
         isOpenUserDeleteDialog: false,
-        deleteMessage: data.message,
+        selectedUser: null,
+        message: data.message,
       })
     })
   };
@@ -162,8 +162,8 @@ export const Users = memo(() => {
           <CircularIndeterminate />
         :
         <>
-          {state.deleteMessage &&
-            <Alert severity="success">{state.deleteMessage}</Alert>
+          {state.message &&
+            <Alert severity="success">{state.message}</Alert>
           }
           <Button
             variant="outlined"
@@ -185,7 +185,7 @@ export const Users = memo(() => {
                     ...state,
                     isOpenUserDialog: true,
                     selectedUser: user,
-                    deleteMessage: null,
+                    message: null,
                   })
                 }
               />
@@ -304,7 +304,7 @@ export const Users = memo(() => {
       {/* ユーザー削除モーダル */}
       {
         state.isOpenUserDeleteDialog &&
-        <UserDeleteDialog
+        <DeleteDialog
           isOpen={state.isOpenUserDeleteDialog}
           user={state.selectedUser}
           onClose={() =>

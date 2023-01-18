@@ -26,7 +26,7 @@ export const UsersIndex = ({ user, onClickUser }) => {
   }];
 
   return (
-    <div onClick={() => onClickUser(user)} aria-hidden="true">
+    <div onClick={onClickUser} aria-hidden="true" style={{ cursor: 'pointer' }}>
       <DataGrid columns={cols} rows={rows} density='comfortable' autoHeight />
     </div>
   )
