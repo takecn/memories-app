@@ -5,12 +5,13 @@ import {
   Alert,
   Button,
 } from '@mui/material';
-import { fetchPosts } from "../../apis/posts";
+import { fetchPosts, deletePost } from "../../apis/posts";
 import { postSession, postGuestSession, deleteSession } from "../../apis/sessions";
 import { REQUEST_STATE } from "../../constants";
 import { initialPostsState, postsActionTypes, postsReducer } from "../../reducers/posts";
 import { Home } from "../presentations/Home.jsx";
 import { LoginDialog } from '../presentations/LoginDialog.jsx';
+import { DeleteDialog } from '../presentations/DeleteDialog.jsx';
 import { UserDialog } from '../presentations/UserDialog.jsx';
 import { PostDialog } from '../presentations/PostDialog.jsx';
 import { CircularIndeterminate } from '../presentations/CircularIndeterminate.jsx';
@@ -19,11 +20,16 @@ export const Posts = memo(() => {
   const [postsState, dispatch] = useReducer(postsReducer, initialPostsState);
   const [sessionsState, setSessionsState] = useState({
     isOpenLoginDialog: true,
+    isOpenLogoutDialog: false,
+    loginUser: null,
     message: null,
   });
   const [postState, setPostState] = useState({
+    isHomePage: true,
     isOpenPostDialog: false,
+    isOpenPostDeleteDialog: false,
     selectedPost: null,
+    message: null,
   });
   const [userState, setUserState] = useState({
     isOpenUserDialog: false,
@@ -33,22 +39,6 @@ export const Posts = memo(() => {
   const [userName, setUserName] = useState();
   const [userEmail, setUserEmail] = useState();
   const [userPassword, setUserPassword] = useState();
-
-  const fetchPostList = () => {
-    dispatch({ type: postsActionTypes.FETCHING });
-    fetchPosts()
-    .then((data) =>
-      dispatch({
-        type: postsActionTypes.FETCH_SUCCESS,
-        payload: {
-          posts: data.posts,
-          users: data.users,
-        },
-      })
-    );
-  };
-
-  useEffect(fetchPostList, []); // userState.selectedUserState
 
   const postUserMap = new Map(postsState.userList.map((user) => [user.id, user]));
 
@@ -70,6 +60,7 @@ export const Posts = memo(() => {
       if (data.message) {
         setSessionsState({
           isOpenLoginDialog: false,
+          loginUser: data.user,
           message: data.message,
         })
         setErrors()
@@ -86,17 +77,17 @@ export const Posts = memo(() => {
     postGuestSession()
     .then((data) => {
       if (data.message) {
-      setSessionsState({
-        isOpenLoginDialog: false,
-        message: data.message,
-      })
-      setErrors()
-      setUserName()
-      setUserEmail()
-      setUserPassword()
-    } else {
-      setErrors(data.error_messages)
-    }
+        setSessionsState({
+          isOpenLoginDialog: false,
+          message: data.message,
+        })
+        setErrors()
+        setUserName()
+        setUserEmail()
+        setUserPassword()
+      } else {
+        setErrors(data.error_messages)
+      }
     });
   };
 
@@ -105,16 +96,47 @@ export const Posts = memo(() => {
     .then((data) => {
       setSessionsState({
         isOpenLoginDialog: true,
+        isOpenLogoutDialog: false,
+        loginUser: null,
         message: data.message,
       })
     });
   };
+
+  const postDelete = () => {
+    deletePost({postId: postState.selectedPost.id})
+    .then((data) => {
+      setPostState({
+        isOpenPostDialog: false,
+        isOpenPostDeleteDialog: false,
+        selectedPost: null,
+        message: data.message,
+      })
+    })
+  }
+
+  const fetchPostList = () => {
+    dispatch({ type: postsActionTypes.FETCHING });
+    fetchPosts()
+    .then((data) =>
+      dispatch({
+        type: postsActionTypes.FETCH_SUCCESS,
+        payload: {
+          posts: data.posts,
+          users: data.users,
+        },
+      })
+    );
+  };
+
+  useEffect(fetchPostList, [postState.selectedPost]);
 
   return (
     <>
       {/* ログインモーダル */}
       {
         sessionsState.isOpenLoginDialog &&
+        !(sessionsState.loginUser) &&
         <LoginDialog
           isOpen={sessionsState.isOpenLoginDialog}
           message={sessionsState.message}
@@ -127,6 +149,28 @@ export const Posts = memo(() => {
         />
       }
 
+      {/* ログアウトモーダル */}
+      {
+        sessionsState.isOpenLogoutDialog &&
+        <DeleteDialog
+          isOpen={sessionsState.isOpenLogoutDialog}
+          session={sessionsState.isOpenLogoutDialog}
+          onClose={() =>
+            setSessionsState({
+              ...sessionsState,
+              isOpenLogoutDialog: false,
+            })
+          }
+          onClickDelete={logout}
+          onClickCloseDelete={() =>
+            setSessionsState({
+              ...sessionsState,
+              isOpenLogoutDialog: false,
+            })
+          }
+        />
+      }
+
       {/* 投稿一覧 */}
       {
         postsState.fetchState === REQUEST_STATE.LOADING ?
@@ -136,9 +180,17 @@ export const Posts = memo(() => {
           {sessionsState.message &&
             <Alert severity="success">{sessionsState.message}</Alert>
           }
+          {postState.message &&
+            <Alert severity="success">{postState.message}</Alert>
+          }
           <Button
             variant="outlined"
-            onClick={logout}
+            onClick={() =>
+              setSessionsState({
+                ...sessionsState,
+                isOpenLogoutDialog: true,
+              })
+            }
           >
             ログアウトする
           </Button>
@@ -204,6 +256,7 @@ export const Posts = memo(() => {
               isOpenUserDialog: false,
             })
           }
+          isHomePage={postState.isHomePage}
         />
       }
 
@@ -218,6 +271,36 @@ export const Posts = memo(() => {
             setPostState({
               ...postState,
               isOpenPostDialog: false,
+            })
+          }
+          onClickPostDelete={() =>
+            setPostState({
+              ...postState,
+              isOpenPostDeleteDialog: true,
+            })
+          }
+        />
+      }
+
+      {/* 投稿削除モーダル */}
+      {
+        postState.isOpenPostDeleteDialog &&
+        <DeleteDialog
+          isOpen={postState.isOpenPostDeleteDialog}
+          message={postState.message}
+          onClose={() =>
+            setPostState({
+              ...postState,
+              isOpenPostDialog: true,
+              isOpenPostDeleteDialog: false,
+            })
+          }
+          onClickDelete={postDelete}
+          onClickCloseDelete={() =>
+            setPostState({
+              ...postState,
+              isOpenPostDialog: true,
+              isOpenPostDeleteDialog: false,
             })
           }
         />

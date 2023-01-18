@@ -123,10 +123,9 @@ module Api
       end
 
       def destroy
-        @post = Post.find(params[:id])
-        @post.destroy
-        flash[:success] = "投稿を削除しました．"
-        redirect_to home_path
+        post = Post.find(params[:id])
+        post.destroy
+        render json: { message: "投稿を削除しました." }, status: :ok
       end
 
       private
