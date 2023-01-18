@@ -36,7 +36,7 @@ module Api
 
         postss = Post.all
         userss = User.all
-        # users_with_avatarの取得はモデルメソッドに切り出す．
+        #! users_with_avatarの取得はモデルメソッドに切り出す．
         users_with_avatar = userss.map do |user|
           if user.user_avatar.attached?
             user.attributes.merge(user_avatar: url_for(user.user_avatar))
