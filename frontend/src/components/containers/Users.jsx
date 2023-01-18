@@ -66,51 +66,39 @@ export const Users = memo(() => {
     if (isUserGuest) formData.append("guest", isUserGuest);
     if (userProfile) formData.append("user_profile", userProfile);
     if (userAvatar) formData.append("user_avatar", userAvatar);
-
     return formData
   };
 
   const userCreate = () => {
-    // 各種state内いずれかが変更されたときのみ，FormDataを送信する（未変更を示すundefinedを弾く）．
-    if (userName !== undefined ||
-      userEmail !== undefined ||
-      userPassword !== undefined ||
-      userPasswordConfirmation !== undefined ||
-      isUserAdmin !== undefined ||
-      isUserGuest !== undefined ||
-      userProfile !== undefined ||
-      userAvatar !== undefined) {
+    const formData = createFormData();
 
-      const formData = createFormData();
-
-      // ユーザー登録情報をサーバーサイドに送る．
-      postUser({formData})
-      .then((data) => {
-        // userが登録された場合，登録内容を反映する．
-        if (data.user) {
-          setState({
-            ...state,
-            isOpenUserDialog: true,
-            isOpenUserCreateDialog: false,
-            selectedUser: data.user,
-            message: data.message,
-          })
-          setErrors()
-          setUserName()
-          setUserEmail()
-          setUserPassword()
-          setUserPasswordConfirmation()
-          setIsUserAdmin()
-          setIsUserGuest()
-          setUserProfile()
-          setUserAvatar()
-          setPreview()
-        } else {
-          // userが登録されていない場合，エラーメッセージをセットする．
-          setErrors(data.error_messages)
-        }
-      })
-    }
+    // ユーザー登録情報をサーバーサイドに送る．
+    postUser({formData})
+    .then((data) => {
+      // userが登録された場合，登録内容を反映する．
+      if (data.user) {
+        setState({
+          ...state,
+          isOpenUserDialog: true,
+          isOpenUserCreateDialog: false,
+          selectedUser: data.user,
+          message: data.message,
+        })
+        setErrors()
+        setUserName()
+        setUserEmail()
+        setUserPassword()
+        setUserPasswordConfirmation()
+        setIsUserAdmin()
+        setIsUserGuest()
+        setUserProfile()
+        setUserAvatar()
+        setPreview()
+      } else {
+        // userが登録されていない場合，エラーメッセージをセットする．
+        setErrors(data.error_messages)
+      }
+    })
   };
 
   const userUpdate = () => {

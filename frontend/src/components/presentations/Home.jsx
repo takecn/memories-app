@@ -84,8 +84,6 @@ export const Home = (props) => {
         <div>
           <EventIcon />
           いつ？
-        </div>
-        <div>
           <WhereToVoteIcon />
           どこ？
         </div>
