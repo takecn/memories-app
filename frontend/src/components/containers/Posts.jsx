@@ -1,4 +1,4 @@
-import React, { memo, useReducer, useEffect, useState } from "react";
+import React, { memo, useReducer, useEffect, useState, useContext } from "react";
 import {
   Container,
   Grid,
@@ -6,7 +6,7 @@ import {
   Button,
 } from '@mui/material';
 import { fetchPosts, deletePost } from "../../apis/posts";
-import { postSession, postGuestSession, deleteSession } from "../../apis/sessions";
+import { SessionContext } from "../providers/SessionProvider.jsx";
 import { REQUEST_STATE } from "../../constants";
 import { initialPostsState, postsActionTypes, postsReducer } from "../../reducers/posts";
 import { Home } from "../presentations/Home.jsx";
@@ -17,13 +17,23 @@ import { PostDialog } from '../presentations/PostDialog.jsx';
 import { CircularIndeterminate } from '../presentations/CircularIndeterminate.jsx';
 
 export const Posts = memo(() => {
+  const {
+    sessionState,
+    setSessionState,
+    errors,
+    // setErrors,
+    // userName,
+    setUserName,
+    // userEmail,
+    setUserEmail,
+    // userPassword,
+    setUserPassword,
+    login,
+    guestLogin,
+    logout,
+    } = useContext(SessionContext);
+
   const [postsState, dispatch] = useReducer(postsReducer, initialPostsState);
-  const [sessionsState, setSessionsState] = useState({
-    isOpenLoginDialog: true,
-    isOpenLogoutDialog: false,
-    loginUser: null,
-    message: null,
-  });
   const [postState, setPostState] = useState({
     isHomePage: true,
     isOpenPostDialog: false,
@@ -35,73 +45,8 @@ export const Posts = memo(() => {
     isOpenUserDialog: false,
     selectedUser: null,
   });
-  const [errors, setErrors] = useState();
-  const [userName, setUserName] = useState();
-  const [userEmail, setUserEmail] = useState();
-  const [userPassword, setUserPassword] = useState();
 
   const postUserMap = new Map(postsState.userList.map((user) => [user.id, user]));
-
-  const createLoginFormData = () => {
-    const formData = new FormData();
-    // user_nameとemailのみ，nullを送信する．presenceバリデーションエラーを表示するため．
-    // undefinedは送信しない．データが"undefined"に更新されてしまうため．
-    if (userName !== undefined) formData.append("user_name", userName);
-    if (userEmail !== undefined) formData.append("email", userEmail);
-    if (userPassword !== undefined) formData.append("password", userPassword);
-    return formData
-  };
-
-  const login = () => {
-    const formData = createLoginFormData();
-
-    postSession({formData})
-    .then((data) => {
-      if (data.message) {
-        setSessionsState({
-          isOpenLoginDialog: false,
-          loginUser: data.user,
-          message: data.message,
-        })
-        setErrors()
-        setUserName()
-        setUserEmail()
-        setUserPassword()
-      } else {
-        setErrors(data.error_messages)
-      }
-    });
-  };
-
-  const guestLogin = () => {
-    postGuestSession()
-    .then((data) => {
-      if (data.message) {
-        setSessionsState({
-          isOpenLoginDialog: false,
-          message: data.message,
-        })
-        setErrors()
-        setUserName()
-        setUserEmail()
-        setUserPassword()
-      } else {
-        setErrors(data.error_messages)
-      }
-    });
-  };
-
-  const logout = () => {
-    deleteSession()
-    .then((data) => {
-      setSessionsState({
-        isOpenLoginDialog: true,
-        isOpenLogoutDialog: false,
-        loginUser: null,
-        message: data.message,
-      })
-    });
-  };
 
   const postDelete = () => {
     deletePost({postId: postState.selectedPost.id})
@@ -135,11 +80,11 @@ export const Posts = memo(() => {
     <>
       {/* ログインモーダル */}
       {
-        sessionsState.isOpenLoginDialog &&
-        !(sessionsState.loginUser) &&
+        sessionState.isOpenLoginDialog &&
+        !(sessionState.loginUser) &&
         <LoginDialog
-          isOpen={sessionsState.isOpenLoginDialog}
-          message={sessionsState.message}
+          isOpen={sessionState.isOpenLoginDialog}
+          messages={sessionState.message}
           errors={errors}
           onChangeUserName={(e) => setUserName(e.target.value)}
           onChangeUserEmail={(e) => setUserEmail(e.target.value)}
@@ -151,20 +96,20 @@ export const Posts = memo(() => {
 
       {/* ログアウトモーダル */}
       {
-        sessionsState.isOpenLogoutDialog &&
+        sessionState.isOpenLogoutDialog &&
         <DeleteDialog
-          isOpen={sessionsState.isOpenLogoutDialog}
-          session={sessionsState.isOpenLogoutDialog}
+          isOpen={sessionState.isOpenLogoutDialog}
+          session={sessionState.isOpenLogoutDialog}
           onClose={() =>
-            setSessionsState({
-              ...sessionsState,
+            setSessionState({
+              ...sessionState,
               isOpenLogoutDialog: false,
             })
           }
           onClickDelete={logout}
           onClickCloseDelete={() =>
-            setSessionsState({
-              ...sessionsState,
+            setSessionState({
+              ...sessionState,
               isOpenLogoutDialog: false,
             })
           }
@@ -177,8 +122,8 @@ export const Posts = memo(() => {
           <CircularIndeterminate />
         :
         <>
-          {sessionsState.message &&
-            <Alert severity="success">{sessionsState.message}</Alert>
+          {sessionState.message &&
+            <Alert severity="success">{sessionState.message}</Alert>
           }
           {postState.message &&
             <Alert severity="success">{postState.message}</Alert>
@@ -186,8 +131,8 @@ export const Posts = memo(() => {
           <Button
             variant="outlined"
             onClick={() =>
-              setSessionsState({
-                ...sessionsState,
+              setSessionState({
+                ...sessionState,
                 isOpenLogoutDialog: true,
               })
             }
@@ -220,7 +165,7 @@ export const Posts = memo(() => {
                           ...userState,
                           selectedUser: postUserMap.get(post.user_id),
                         })
-                        setSessionsState({
+                        setSessionState({
                           message: null
                         })
                       }}
@@ -230,7 +175,7 @@ export const Posts = memo(() => {
                           isOpenUserDialog: true,
                           selectedUser: postUserMap.get(post.user_id),
                         })
-                        setSessionsState({
+                        setSessionState({
                           message: null
                         })
                       }}
