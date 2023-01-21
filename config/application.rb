@@ -22,5 +22,8 @@ module Myapp
 
     config.time_zone = 'Asia/Tokyo'
     config.i18n.default_locale = :ja
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore
+    config.action_dispatch.cookies_same_site_protection = nil
   end
 end
