@@ -9,6 +9,7 @@ export const postSession = (params) => {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      withCredentials: true,
     })
     .then((response) => {
       return response.data;
@@ -20,7 +21,9 @@ export const postSession = (params) => {
 
 export const postGuestSession = () => {
   return axios
-    .post(guestLogin)
+    .post(guestLogin, {
+      withCredentials: true,
+    })
     .then((response) => {
       return response.data;
     })
@@ -30,10 +33,10 @@ export const postGuestSession = () => {
 };
 
 export const deleteSession = () => {
-  // const { userId } = params;
-
   return axios
-    .delete(logout)
+    .delete(logout, {
+      withCredentials: true,
+    })
     .then((response) => {
       return response.data;
     })
