@@ -25,14 +25,14 @@ module Api
         if user.present?
           session[:user_id] = user.id
           cookies.encrypted[:user_id] = { value: user.id, expires: 1.hour.from_now, secure: true }
-          render json: { user: current_user, message: "「#{user.user_name}」でログインしました．" }, status: :ok
+          render json: { user: current_user, message: "「#{current_user.user_name}」でログインしました．" }, status: :ok
         else
           password = SecureRandom.urlsafe_base64
           user = User.new(id: 25, user_name: "guest1", email: "guest1@guest.com", guest: true, password: password, password_confirmation: password)
           if user.save
             session[:user_id] = user.id
             cookies.encrypted[:user_id] = { value: user.id, expires: 1.hour.from_now, secure: true }
-            render json: { user: current_user, message: "「#{user.user_name}」を作成しログインしました．" }, status: :ok
+            render json: { user: current_user, message: "「#{current_user.user_name}」を作成しログインしました．" }, status: :ok
           else
             render json: { error_messages: ["ゲストユーザーを作成できませんでした．id, user_name, emailが既存アカウントと重複している可能性があります．"] }, status: :unprocessable_entity
           end

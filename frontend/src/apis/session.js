@@ -20,8 +20,8 @@ export const postSession = (params) => {
 };
 
 export const postGuestSession = () => {
-  return axios
-    .post(guestLogin, {
+  return axios // getメソッドを用いる．formDataを送信せず，guest_userを受け取るため．
+    .get(guestLogin, {
       withCredentials: true,
     })
     .then((response) => {
