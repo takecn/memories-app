@@ -14,11 +14,23 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PropTypes from 'prop-types';
+import styled from "styled-components";
+
+const TagWrapper = styled.span`
+  background-color: #e8f8f8;
+  border: solid;
+  border-radius: 50% 20% / 10% 40%;
+  margin: 3px;
+  padding: 3px;
+`;
 
 export const PostDialog = ({
   isOpen,
   post,
+  postImages,
   user,
+  map,
+  tags,
   message,
   onClose,
   // onClickUserEdit,
@@ -32,17 +44,38 @@ export const PostDialog = ({
         </Stack>
       }
       <DialogTitle>
-        <Stack direction="row">
+        {user &&
+          <Stack direction="row">
           <Avatar alt={user.user_name} src={user.user_avatar} style={{marginRight: "10px"}} />
           {user.user_name}
-        </Stack>
+        </Stack>}
       </DialogTitle>
       <DialogContent>
+        <div>
+          <FormControl margin="normal">
+            <FormLabel>コメント</FormLabel>
+            {post.comment}
+          </FormControl>
+        </div>
+        <div>
+          <FormControl margin="normal">
+            <FormLabel>どこ？</FormLabel>
+            {map.location}
+          </FormControl>
+        </div>
         <div>Google Map</div>
         <div>
           <FormControl margin="normal">
             <FormLabel>画像</FormLabel>
-            {/* {user.email} */}
+            <span>
+              {postImages &&
+                postImages.map((image) =>
+                  <span key={image.id}>
+                    <img alt="post_images" src={image} height="100" style={{ marginRight: "10px"}} />
+                  </span>
+                )
+              }
+            </span>
           </FormControl>
         </div>
         <div>
@@ -53,20 +86,14 @@ export const PostDialog = ({
         </div>
         <div>
           <FormControl margin="normal">
-            <FormLabel>どこ？</FormLabel>
-            {/* {user.admin === true ? `あり` : `なし`} */}
-          </FormControl>
-        </div>
-        <div>
-          <FormControl margin="normal">
             <FormLabel>タグ</FormLabel>
-            {/* {user.guest === true ? `あり` : `なし`} */}
-          </FormControl>
-        </div>
-        <div>
-          <FormControl margin="normal">
-            <FormLabel>コメント</FormLabel>
-            {post.comment}
+            <span>
+              {tags.map((tag) =>
+                <TagWrapper key={tag.id}>
+                  {tag.tag_name}
+                </TagWrapper>
+              )}
+            </span>
           </FormControl>
         </div>
         <div>
@@ -96,7 +123,7 @@ export const PostDialog = ({
         <div>
           <FormControl margin="normal">
             <FormLabel>投稿詳細</FormLabel>
-            {user.description}
+            {post.description}
           </FormControl>
         </div>
         <div>
@@ -148,10 +175,26 @@ PostDialog.propTypes = {
       updated_at: PropTypes.string.isRequired,
     })
   ).isRequired,
+  postImages: PropTypes.objectOf(PropTypes.string).isRequired,
   user: PropTypes.objectOf(
     PropTypes.shape({
       user_name: PropTypes.string.isRequired,
       user_avatar: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  map: PropTypes.objectOf(
+    PropTypes.shape({
+      location: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  tags: PropTypes.objectOf(
+    PropTypes.shape({
+      tag: PropTypes.objectOf(
+        PropTypes.shape({
+          id: PropTypes.number.isRequired,
+          tag_name: PropTypes.string.isRequired,
+        })
+      )
     })
   ).isRequired,
   message: PropTypes.string.isRequired,

@@ -34,8 +34,11 @@ module Api
         maps = posts_maps.compact_blank.uniq
         #! gon.places = Map.where(id: maps.map(&:id))
 
-        postss = Post.all
+        postss = Post.all.order(created_at: :desc)
         userss = User.all
+        mapss = Map.all
+        post_tagss = PostTag.all
+        tagss = Tag.all
         #! users_with_avatarの取得はモデルメソッドに切り出す．
         users_with_avatar = userss.map do |user|
           if user.user_avatar.attached?
@@ -44,7 +47,22 @@ module Api
             user.attributes.merge(user_avatar: nil)
           end
         end
-        render json: { posts: postss, users: users_with_avatar }, status: :ok
+        #! post_with_imagesの取得はモデルメソッドに切り出す．
+        post_with_images = postss.map do |post|
+          if post.post_images.attached?
+            images_urls = post.post_images.map { |image| url_for(image) }
+            post.attributes.merge(post_images: images_urls)
+          else
+            post.attributes.merge(post_images: nil)
+          end
+        end
+        render json: {
+          posts: post_with_images,
+          users: users_with_avatar,
+          maps: mapss,
+          post_tags: post_tagss,
+          tags: tagss,
+        }, status: :ok
       end
 
       def index
@@ -64,20 +82,34 @@ module Api
       end
 
       def create
-        @map = Map.find_or_create_by(location: post_location_params[:location])
-        @post = current_user.posts.new(post_params.merge(map_id: @map.id))
+        map = Map.find_or_create_by(location: post_location_params[:location])
+        post = current_user.posts.new(post_params.merge(map_id: map.id))
 
-        if @post.save # post保存時に，collection_check_boxesメソッドによりdisclosuresテーブルのレコードを生成している．
-
+        if post.save # post保存時に，collection_check_boxesメソッドによりdisclosuresテーブルのレコードを生成している．
           # 投稿にタグを付ける．
-          entered_tags = post_tag_params[:tag_name].split(/[,| |，|、|　]/)
-          @post.create_tags(entered_tags)
+          if post_tag_params[:tag_name].present?
+            entered_tags = post_tag_params[:tag_name].split(/[,| |，|、|　]/)
+            tags = post.create_tags(entered_tags)
+          end
 
-          flash[:success] = "思い出を投稿しました．"
-          redirect_to home_path
+          # 投稿に画像を紐つける．
+          # if post_params[:post_images]
+          #   post.post_images.purge
+          #   post.post_images.attach(post_params[:post_images])
+          # end
+
+          #! post_with_imagesの取得はモデルメソッドに切り出す．
+          if post.post_images.attached?
+            images_urls = post.post_images.map { |image| url_for(image) }
+            post_with_images = post.attributes.merge(post_images: images_urls)
+
+          else
+            post_with_images = post.attributes.merge(post_images: nil)
+          end
+
+          render json: { post: post_with_images, map: map, tag: tags, message: "思い出を投稿しました．" }, status: :created
         else
-          flash.now[:danger] = "投稿に失敗しました．"
-          render :new
+          render json: { error_messages: post.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
@@ -131,15 +163,15 @@ module Api
       private
 
       def post_params
-        params.require(:post).permit(:comment, :memorized_on, :description, post_images: [], group_ids: [])
+        params.permit(:comment, :memorized_on, :description, post_images: [], group_ids: [])
       end
 
       def post_location_params
-        params.require(:post).permit(:location)
+        params.permit(:location)
       end
 
       def post_tag_params
-        params.require(:post).permit(:tag_name)
+        params.permit(:tag_name)
       end
 
       def post_search_params
