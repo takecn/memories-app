@@ -15,7 +15,7 @@ export const SessionProvider = (props) => {
     loginUser: null,
     message: null,
   });
-  const [errors, setErrors] = useState();
+  const [loginErrors, setLoginErrors] = useState();
   const [userName, setUserName] = useState();
   const [userEmail, setUserEmail] = useState();
   const [userPassword, setUserPassword] = useState();
@@ -43,12 +43,12 @@ export const SessionProvider = (props) => {
           message: data.message,
         })
         setCookie("user_id", data.user)
-        setErrors()
+        setLoginErrors()
         setUserName()
         setUserEmail()
         setUserPassword()
       } else {
-        setErrors(data.error_messages)
+        setLoginErrors(data.error_messages)
       }
     });
   };
@@ -64,12 +64,12 @@ export const SessionProvider = (props) => {
           message: data.message,
         })
         setCookie("user_id", data.user)
-        setErrors()
+        setLoginErrors()
         setUserName()
         setUserEmail()
         setUserPassword()
       } else {
-        setErrors(data.error_messages)
+        setLoginErrors(data.error_messages)
       }
     });
   };
@@ -109,8 +109,8 @@ export const SessionProvider = (props) => {
   const value = useMemo(() => ({
     sessionState,
     setSessionState,
-    errors,
-    setErrors,
+    loginErrors,
+    setLoginErrors,
     userName,
     setUserName,
     userEmail,
@@ -123,8 +123,8 @@ export const SessionProvider = (props) => {
   }), [
     sessionState,
     setSessionState,
-    errors,
-    setErrors,
+    loginErrors,
+    setLoginErrors,
     userName,
     setUserName,
     userEmail,

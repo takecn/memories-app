@@ -1,11 +1,11 @@
 class User < ApplicationRecord
   has_secure_password
   has_one_attached :user_avatar
-  has_many :posts
+  has_many :posts, dependent: :destroy
   has_many :favorites, dependent: :destroy
   has_many :bookmarks, dependent: :destroy
   has_many :replies
-  has_many :group_users
+  has_many :group_users, dependent: :destroy
   has_many :groups, through: :group_users
   has_many :active_notices, class_name: "Notice", foreign_key: "sender_id", dependent: :destroy
   has_many :passive_notices, class_name: "Notice", foreign_key: "receiver_id", dependent: :destroy

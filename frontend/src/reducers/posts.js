@@ -4,6 +4,9 @@ export const initialPostsState = {
   fetchState: REQUEST_STATE.INITIAL,
   postList: [],
   userList: [],
+  mapList: [],
+  postTagList: [],
+  tagList: [],
 };
 
 export const postsActionTypes = {
@@ -23,6 +26,9 @@ export const postsReducer = (state, action) => {
         fetchState: REQUEST_STATE.OK,
         postList: action.payload.posts,
         userList: action.payload.users,
+        mapList: action.payload.maps,
+        postTagList: action.payload.post_tags,
+        tagList: action.payload.tags,
       };
     default:
       throw new Error();

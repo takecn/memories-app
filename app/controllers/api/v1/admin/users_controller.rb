@@ -20,9 +20,9 @@ module Api
       def create
         user = User.new(user_params)
         if user.save
-          if user_params[:user_avatar]
-            user.user_avatar.attach(user_params[:user_avatar])
-          end
+          # if user_params[:user_avatar]
+          #   user.user_avatar.attach(user_params[:user_avatar])
+          # end
           #! user_with_avatarの取得はモデルメソッドに切り出す．
           if user.user_avatar.attached?
             user_with_avatar = user.attributes.merge(user_avatar: url_for(user.user_avatar))
@@ -38,10 +38,10 @@ module Api
       def update
         user = User.find(params[:id])
         if user.update(user_params)
-          if user_params[:user_avatar]
-            user.user_avatar.purge
-            user.user_avatar.attach(user_params[:user_avatar])
-          end
+          # if user_params[:user_avatar]
+          #   user.user_avatar.purge
+          #   user.user_avatar.attach(user_params[:user_avatar])
+          # end
           #! user_with_avatarの取得はモデルメソッドに切り出す．
           if user.user_avatar.attached?
             user_with_avatar = user.attributes.merge(user_avatar: url_for(user.user_avatar))
