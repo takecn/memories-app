@@ -117,6 +117,7 @@ export const Home = (props) => {
           <LocalOfferIcon />
           タグ {
           tags.map((tag) =>
+            tag &&
             <ItemWrapper key={tag.id}>
               {tag.tag_name}
             </ItemWrapper>

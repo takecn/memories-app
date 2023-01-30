@@ -10,18 +10,20 @@ import {
   FormControl,
   FormLabel,
   Button,
+  IconButton,
 } from "@mui/material";
 // import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 // import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CreateIcon from '@mui/icons-material/Create';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import CancelIcon from "@mui/icons-material/Cancel";
 import PropTypes from 'prop-types';
 
-export const PostCreateEditDialog = ({
+export const PostCreateDialog = ({
   isOpen,
+  newPostImagesPreviews,
   errors,
-  previews,
   onClose,
   onChangeMemorableDay,
   onChangeLocation,
@@ -29,6 +31,7 @@ export const PostCreateEditDialog = ({
   onChangeComment,
   onChangePostDescription,
   onChangePostImages,
+  onRemoveNewImages,
   onClick,
 }) => {
   return (
@@ -61,20 +64,44 @@ export const PostCreateEditDialog = ({
         </div>
           <FormControl>
             <FormLabel>プレビュー</FormLabel>
-        <Stack direction="row">
-            {previews &&
-              previews.map((preview) =>
-                <span key={preview.id}>
-                  <img
-                    alt="preview"
-                    src={preview}
-                    height="50"
-                    style={{marginLeft: "50%"}}
-                  />
-                </span>
-              )
-            }
-          </Stack>
+            <Stack direction="row">
+              {newPostImagesPreviews &&
+                newPostImagesPreviews.map((preview, index) =>
+                  <span key={index} style={{ position: "relative" }}>
+                    <IconButton
+                      aria-label="delete image"
+                      style={{
+                        position: "absolute",
+                        top: -15,
+                        left: -10,
+                        color: "black",
+                      }}
+                      onClick={() => onRemoveNewImages(index)}
+                    >
+                      <CancelIcon />
+                    </IconButton>
+                    <img
+                      alt="preview"
+                      src={preview}
+                      height="50"
+                      style={{marginLeft: "10px"}}
+                    />
+                  </span>
+                )
+              }
+              {/* {previews &&
+                previews.map((preview) =>
+                  <span key={preview.id}>
+                    <img
+                      alt="preview"
+                      src={preview}
+                      height="50"
+                      style={{marginLeft: "3px"}}
+                    />
+                  </span>
+                )
+              } */}
+            </Stack>
           </FormControl>
         {/* </Stack> */}
         {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -154,9 +181,9 @@ export const PostCreateEditDialog = ({
   )
 }
 
-PostCreateEditDialog.propTypes = {
+PostCreateDialog.propTypes = {
   isOpen: PropTypes.bool.isRequired,
-  previews: PropTypes.arrayOf(PropTypes.string).isRequired,
+  newPostImagesPreviews: PropTypes.arrayOf(PropTypes.string).isRequired,
   errors: PropTypes.arrayOf(PropTypes.string).isRequired,
   onClose: PropTypes.func.isRequired,
   onChangeMemorableDay: PropTypes.func.isRequired,
@@ -165,5 +192,6 @@ PostCreateEditDialog.propTypes = {
   onChangeComment: PropTypes.func.isRequired,
   onChangePostDescription: PropTypes.func.isRequired,
   onChangePostImages: PropTypes.func.isRequired,
+  onRemoveNewImages: PropTypes.func.isRequired,
   onClick: PropTypes.func.isRequired,
 };

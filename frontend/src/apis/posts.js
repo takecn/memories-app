@@ -32,6 +32,24 @@ export const postPost = (params) => {
     });
 };
 
+export const putPost = (params) => {
+  const { postId, formData } = params;
+
+  return axios
+    .put(post(postId), formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    })
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      return error.response.data;
+    });
+};
+
 export const deletePost = (params) => {
   const { postId } = params;
 
