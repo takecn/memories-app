@@ -14,6 +14,7 @@ module.exports = {
     "import/prefer-default-export": "off",
     "arrow-body-style": "off",
     "react/function-component-definition": "off",
+    "react/no-array-index-key": "off",
   },
   settings: { "import/resolver": "webpack" },
 };

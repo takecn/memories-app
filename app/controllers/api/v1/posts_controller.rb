@@ -51,9 +51,9 @@ module Api
         post_with_images = postss.map do |post|
           if post.post_images.attached?
             images_urls = post.post_images.map { |image| url_for(image) }
-            post.attributes.merge(post_images: images_urls)
+            post.attributes.merge(post_images: images_urls, blobs: post.post_images.blobs)
           else
-            post.attributes.merge(post_images: nil)
+            post.attributes.merge(post_images: nil, blobs: nil)
           end
         end
         render json: {
@@ -93,21 +93,25 @@ module Api
           end
 
           # 投稿に画像を紐つける．
-          # if post_params[:post_images]
-          #   post.post_images.purge
-          #   post.post_images.attach(post_params[:post_images])
-          # end
+          if post_images_params[:post_images]
+            # post.post_images.purge
+            post.post_images.attach(post_images_params[:post_images])
+          end
 
           #! post_with_imagesの取得はモデルメソッドに切り出す．
           if post.post_images.attached?
             images_urls = post.post_images.map { |image| url_for(image) }
             post_with_images = post.attributes.merge(post_images: images_urls)
-
           else
             post_with_images = post.attributes.merge(post_images: nil)
           end
 
-          render json: { post: post_with_images, map: map, tag: tags, message: "思い出を投稿しました．" }, status: :created
+          render json: {
+            post: post_with_images,
+            map: map,
+            tag: tags,
+            message: "思い出を投稿しました．",
+          }, status: :created
         else
           render json: { error_messages: post.errors.full_messages }, status: :unprocessable_entity
         end
@@ -128,29 +132,55 @@ module Api
       end
 
       def update
-        @post = Post.find(params[:id])
+        post = Post.find(params[:id])
         # 投稿の開示先グループを編集する．
-        newly_set_group_ids = post_params[:group_ids]
-        @post.set_groups(@post, newly_set_group_ids)
+        # newly_set_group_ids = post_params[:group_ids]
+        # post.set_groups(post, newly_set_group_ids)
 
         # 投稿のタグを編集する．
-        entered_tags = post_tag_params[:tag_name].split(/[,| |、|　]/)
-        @post.create_tags(entered_tags)
-
-        # 投稿のロケーションを編集する．
-        if @post.map.present?
-          @post.map.update(location: post_location_params[:location])
-        else
-          @map = Map.find_or_create_by(location: post_location_params[:location])
-          @post.update(map_id: @map.id)
+        if post_tag_params[:tag_name].present?
+          entered_tags = post_tag_params[:tag_name].split(/[,| |、|　]/)
+          tags = post.create_tags(entered_tags)
         end
 
-        if @post.update(post_params)
-          flash[:success] = "投稿を更新しました．"
-          redirect_to post_path(@post.id)
+        # 投稿のロケーションを編集する．
+        if post_location_params[:location].present?
+          map = post.map.update(location: post_location_params[:location])
+        end
+
+        if post.update(post_params)
+
+          # binding.pry
+
+          if post_images_params[:images_blob_ids]
+            # binding.pry
+            # token = post_images_params[:images_blob_ids][0].split("/")[-2]
+            # blob = ActiveStorage::Blob.find_by(key: token)
+            blob_ids = post_images_params[:images_blob_ids]
+            post_images = post.post_images.attachments.where(blob_id: blob_ids)
+            post_images.purge
+            post.post_images.attach
+          end
+
+          if post_images_params[:post_images]
+            post.post_images.attach(post_images_params[:post_images])
+          end
+
+          #! post_with_imagesの取得はモデルメソッドに切り出す．
+          if post.post_images.attached?
+            images_urls = post.post_images.map { |image| url_for(image) }
+            post_with_images = post.attributes.merge(post_images: images_urls, blobs: post.post_images.blobs)
+          else
+            post_with_images = post.attributes.merge(post_images: nil, blobs: nil)
+          end
+          render json: {
+            post: post_with_images,
+            map: map,
+            tag: tags,
+            message: "投稿を更新しました.",
+          }, status: :created
         else
-          flash.now[:danger] = "投稿を更新できませんでした．"
-          render :edit
+          render json: { error_messages: post.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
@@ -163,7 +193,13 @@ module Api
       private
 
       def post_params
-        params.permit(:comment, :memorized_on, :description, post_images: [], group_ids: [])
+        params.permit(:comment, :memorized_on, :description, group_ids: [])
+        # params.permit(:comment, :memorized_on, :description, post_images: [], group_ids: [])
+        # params.require(post).permit(:comment, :memorized_on, :description, post_images: [], group_ids: [])
+      end
+
+      def post_images_params
+        params.permit(post_images: [], images_blob_ids: [])
       end
 
       def post_location_params

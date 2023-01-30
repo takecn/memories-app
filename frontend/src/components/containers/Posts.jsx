@@ -5,7 +5,7 @@ import {
   Alert,
   Button,
 } from '@mui/material';
-import { fetchPosts, deletePost, postPost } from "../../apis/posts";
+import { fetchPosts, postPost, putPost, deletePost } from "../../apis/posts";
 import { SessionContext } from "../providers/SessionProvider.jsx";
 import { REQUEST_STATE } from "../../constants";
 import { initialPostsState, postsActionTypes, postsReducer } from "../../reducers/posts";
@@ -13,7 +13,8 @@ import { Home } from "../presentations/Home.jsx";
 import { LoginDialog } from '../presentations/LoginDialog.jsx';
 import { DeleteDialog } from '../presentations/DeleteDialog.jsx';
 import { UserDialog } from '../presentations/UserDialog.jsx';
-import { PostCreateEditDialog } from '../presentations/PostCreateEditDialog.jsx';
+import { PostCreateDialog } from '../presentations/PostCreateDialog.jsx';
+import { PostEditDialog } from '../presentations/PostEditDialog.jsx';
 import { PostDialog } from '../presentations/PostDialog.jsx';
 import { CircularIndeterminate } from '../presentations/CircularIndeterminate.jsx';
 
@@ -22,12 +23,8 @@ export const Posts = memo(() => {
     sessionState,
     setSessionState,
     loginErrors,
-    // setLoginErrors,
-    // userName,
     setUserName,
-    // userEmail,
     setUserEmail,
-    // userPassword,
     setUserPassword,
     login,
     guestLogin,
@@ -37,8 +34,9 @@ export const Posts = memo(() => {
   const [postsState, dispatch] = useReducer(postsReducer, initialPostsState);
   const [postState, setPostState] = useState({
     isHomePage: true,
-    isOpenPostCreateEditDialog: false,
+    isOpenPostCreateDialog: false,
     isOpenPostDialog: false,
+    isOpenPostEditDialog: false,
     isOpenPostDeleteDialog: false,
     selectedPost: null,
     message: null,
@@ -57,7 +55,9 @@ export const Posts = memo(() => {
   // const [disclosureGroupsUsers, setDisclosureGroupsUsers] = useState();
   const [postDescription, setPostDescription] = useState();
   const [postImages, setPostImages] = useState([]);
-  const [previews, setPreviews] = useState([]);
+  const [beRemovedPostImagesBlobIds, setBeRemovedPostImagesBlobIds] = useState([]); // ActiveStorage::Blobのidを保持する．
+  const [existingPostImagesPreviews, setExistingPostImagesPreviews] = useState([]); // ActiveStorageに保存済みの画像URLを保持する．プレビュー表示に使用する．
+  const [newPostImagesPreviews, setNewPostImagesPreviews] = useState([]); // 入力フォームに追加した画像のパスを保持する．プレビュー表示に使用する．
   // const [reply, setReply] = useState();
 
   const fetchPostList = () => {
@@ -80,13 +80,33 @@ export const Posts = memo(() => {
   const postUserMap = new Map(postsState.userList.map((user) => [user.id, user]));
   const postMapMap = new Map(postsState.mapList.map((map) => [map.id, map]));
   const tagMap = new Map(postsState.tagList.map((tag) => [tag.id, tag]));
+  const tagNameMap = new Map(postsState.tagList.map((tag) => [tag.id, tag.tag_name]));
 
+  // 入力フォームに追加した画像をプレビュー表示する．
   const previewPostImages = (e) => {
     const imageFiles = [...e.target.files];
     const previewUrls = imageFiles.map((file) => window.URL.createObjectURL(file));
-    setPreviews([...previews, previewUrls].flat())
+    setNewPostImagesPreviews([...newPostImagesPreviews, previewUrls].flat());
   };
 
+  // 投稿済みの画像を削除する．
+  const removeExistingImages = (index) => {
+    const removeExistingPostImages = [...existingPostImagesPreviews];
+    removeExistingPostImages.splice(index, 1);
+    setExistingPostImagesPreviews(removeExistingPostImages);
+  }
+
+  // 入力フォームに追加した画像を削除する．
+  const removeNewNewImages = (index) => {
+    const removeNewPostImages = [...postImages];
+    const removeNewPostImagesPreviews = [...newPostImagesPreviews];
+    removeNewPostImages.splice(index, 1);
+    removeNewPostImagesPreviews.splice(index, 1);
+    setPostImages(removeNewPostImages);
+    setNewPostImagesPreviews(removeNewPostImagesPreviews);
+  };
+
+  // フォームに入力したデータを保持する．
   const createFormData = () => {
     const formData = new FormData();
     if (memorableDay) formData.append("memorized_on", memorableDay);
@@ -99,19 +119,25 @@ export const Posts = memo(() => {
         formData.append("post_images[]", image)
       )
     };
+    if (beRemovedPostImagesBlobIds) {
+      beRemovedPostImagesBlobIds.map((blobId) =>
+        formData.append("images_blob_ids[]", blobId)
+      )
+    };
+    console.log(...formData.entries());
     return formData
   };
 
+  // 投稿新設をリクエストする．
   const postCreate = () => {
     const formData = createFormData();
-
     postPost({formData})
     .then((data) => {
       if (data) {
         setPostState({
           ...postState,
           isOpenPostDialog: true,
-          isOpenPostCreateEditDialog: false,
+          isOpenPostCreateDialog: false,
           selectedPost: data.post,
           message: data.message,
         })
@@ -125,14 +151,60 @@ export const Posts = memo(() => {
         setTags()
         setComment()
         setPostDescription()
-        setPostImages([])
-        setPreviews([])
+        setPostImages(data.post.post_images)
+        setExistingPostImagesPreviews(postState.selectedPost.post_images)
+        setNewPostImagesPreviews([])
       } else {
         setErrors(data.error_messages)
       }
     })
   };
 
+  // 投稿更新をリクエストする．
+  const postUpdate = () => {
+    if (memorableDay !== undefined ||
+      location !== undefined ||
+      tags !== undefined ||
+      comment !== undefined ||
+      postDescription !== undefined ||
+      postImages !== undefined) {
+
+      const formData = createFormData();
+      putPost({
+        postId: postState.selectedPost.id,
+        formData,
+      })
+      .then((data) => {
+        if (data) {
+          setPostState({
+            ...postState,
+            isOpenPostDialog: true,
+            isOpenPostEditDialog: false,
+            selectedPost: data.post,
+            message: data.message,
+          })
+          setUserState({
+            ...userState,
+            selectedUser: sessionState.loginUser,
+          })
+          setErrors()
+          setMemorableDay()
+          setLocation()
+          setTags()
+          setComment()
+          setPostDescription()
+          setPostImages(data.post.post_images)
+          setBeRemovedPostImagesBlobIds([])
+          setExistingPostImagesPreviews(postState.selectedPost.post_images)
+          setNewPostImagesPreviews([])
+        } else {
+          setErrors(data.error_messages)
+        }
+      })
+    }
+  };
+
+  // 投稿削除をリクエストする．
   const postDelete = () => {
     deletePost({postId: postState.selectedPost.id})
     .then((data) => {
@@ -142,9 +214,22 @@ export const Posts = memo(() => {
         selectedPost: null,
         message: data.message,
       })
+      setUserState({
+        ...userState,
+        selectedUser: sessionState.loginUser,
+      })
+      setErrors()
+      setMemorableDay()
+      setLocation()
+      setTags()
+      setComment()
+      setPostDescription()
+      setPostImages([])
+      setNewPostImagesPreviews([])
     })
   };
 
+  // 再レンダリングする．
   useEffect(fetchPostList, [userState, postState.selectedPost, location, tags, postImages]);
 
   return (
@@ -215,7 +300,7 @@ export const Posts = memo(() => {
             onClick={() =>
               setPostState({
                 ...postState,
-                isOpenPostCreateEditDialog: true,
+                isOpenPostCreateDialog: true,
                 message: null,
               })
             }
@@ -253,6 +338,7 @@ export const Posts = memo(() => {
                           selectedPost: post,
                           message: null,
                         })
+                        setPostImages(post.post_images)
                         setUserState({
                           ...userState,
                           selectedUser: postUserMap.get(post.user_id),
@@ -283,15 +369,15 @@ export const Posts = memo(() => {
 
       {/* 新規投稿モーダル */}
       {
-        postState.isOpenPostCreateEditDialog &&
-        <PostCreateEditDialog
-          isOpen={postState.isOpenPostCreateEditDialog}
-          previews={previews}
+        postState.isOpenPostCreateDialog &&
+        <PostCreateDialog
+          isOpen={postState.isOpenPostCreateDialog}
+          newPostImagesPreviews={newPostImagesPreviews}
           errors={errors}
           onClose={() => {
             setPostState({
               ...postState,
-              isOpenPostCreateEditDialog: false,
+              isOpenPostCreateDialog: false,
             })
             setErrors()
             setMemorableDay()
@@ -299,8 +385,8 @@ export const Posts = memo(() => {
             setTags()
             setComment()
             setPostDescription()
-            setPostImages()
-            setPreviews()
+            setPostImages([])
+            setNewPostImagesPreviews([])
           }}
           onChangeMemorableDay={(e) => setMemorableDay(e.target.value)}
           onChangeLocation={(e) => setLocation(e.target.value)}
@@ -308,9 +394,10 @@ export const Posts = memo(() => {
           onChangeComment={(e) => setComment(e.target.value)}
           onChangePostDescription={(e) => setPostDescription(e.target.value)}
           onChangePostImages={(e) => {
-            setPostImages([...postImages, ...e.target.files])
+            setPostImages([...e.target.files])
             previewPostImages(e)
           }}
+          onRemoveNewImages={((index) => removeNewNewImages(index))}
           onClick={postCreate}
         />
       }
@@ -346,18 +433,72 @@ export const Posts = memo(() => {
             )
             .map((postTag) => tagMap.get(postTag.tag_id))
           }
+          message={postState.message}
           onClose={() =>
             setPostState({
               ...postState,
               isOpenPostDialog: false,
             })
           }
+          onClickPostEdit={() => {
+            setPostState({
+              ...postState,
+              isOpenPostEditDialog: true,
+            })
+            setPostImages([])
+            setExistingPostImagesPreviews(postState.selectedPost.post_images)
+          }}
           onClickPostDelete={() =>
             setPostState({
               ...postState,
               isOpenPostDeleteDialog: true,
             })
           }
+        />
+      }
+
+      {/* 投稿編集モーダル */}
+      {
+        postState.isOpenPostEditDialog &&
+        <PostEditDialog
+          isOpen={postState.isOpenPostEditDialog}
+          post={postState.selectedPost}
+          existingPostImagesPreviews={existingPostImagesPreviews}
+          existingBlobs={postState.selectedPost.blobs}
+          newPostImagesPreviews={newPostImagesPreviews}
+          map={postMapMap.get(postState.selectedPost.map_id)}
+          tags={
+            Array.from(new Set(
+              postsState.postTagList.filter(
+                (postTag) => postTag.post_id === postState.selectedPost.id
+              )
+              .map((postTag) => tagNameMap.get(postTag.tag_id))
+            ))
+            .join(",")
+          }
+          errors={errors}
+          onClose={() => {
+            setPostState({
+              ...postState,
+              isOpenPostEditDialog: false,
+            })
+            setErrors()
+          }}
+          onChangeMemorableDay={(e) => setMemorableDay(e.target.value)}
+          onChangeLocation={(e) => setLocation(e.target.value)}
+          onChangeTags={(e) => setTags(e.target.value)}
+          onChangeComment={(e) => setComment(e.target.value)}
+          onChangePostDescription={(e) => setPostDescription(e.target.value)}
+          onChangePostImages={(e) => {
+            setPostImages([...e.target.files])
+            previewPostImages(e)
+          }}
+          onSelectExistingImages={(blobId) =>
+            setBeRemovedPostImagesBlobIds([...beRemovedPostImagesBlobIds, blobId])
+          }
+          onRemoveExistingImages={((index) => removeExistingImages(index))}
+          onRemoveNewImages={((index) => removeNewNewImages(index))}
+          onClick={postUpdate}
         />
       }
 

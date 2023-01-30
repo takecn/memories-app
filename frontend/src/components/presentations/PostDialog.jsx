@@ -33,7 +33,7 @@ export const PostDialog = ({
   tags,
   message,
   onClose,
-  // onClickUserEdit,
+  onClickPostEdit,
   onClickPostDelete,
   }) => {
   return (
@@ -89,6 +89,7 @@ export const PostDialog = ({
             <FormLabel>タグ</FormLabel>
             <span>
               {tags.map((tag) =>
+                tag &&
                 <TagWrapper key={tag.id}>
                   {tag.tag_name}
                 </TagWrapper>
@@ -155,7 +156,7 @@ export const PostDialog = ({
         <Button
           variant="outlined"
           startIcon={<EditIcon />}
-          // onClick={onClickUserEdit}
+          onClick={onClickPostEdit}
           aria-hidden="true"
         >
           編集する
@@ -199,6 +200,6 @@ PostDialog.propTypes = {
   ).isRequired,
   message: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
-  // onClickUserEdit: PropTypes.func.isRequired,
+  onClickPostEdit: PropTypes.func.isRequired,
   onClickPostDelete: PropTypes.func.isRequired,
 };
