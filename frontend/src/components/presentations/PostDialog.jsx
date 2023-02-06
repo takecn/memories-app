@@ -15,6 +15,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
+import { PostLocationMap } from "./PostLocationMap.jsx";
 
 const TagWrapper = styled.span`
   background-color: #e8f8f8;
@@ -61,9 +62,10 @@ export const PostDialog = ({
           <FormControl margin="normal">
             <FormLabel>どこ？</FormLabel>
             {map.location}
+            {console.log(map.latitude)}
           </FormControl>
         </div>
-        <div>Google Map</div>
+        <PostLocationMap map={map} />
         <div>
           <FormControl margin="normal">
             <FormLabel>画像</FormLabel>

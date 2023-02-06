@@ -5,7 +5,7 @@ import { CircularProgress } from '@mui/material';
 const ProgressPosition = styled.div`
   display: flex;
   justify-content: space-around;
-  margin-top: 10%;
+  margin-top: 100px;
 `;
 
 export const CircularIndeterminate = () => {

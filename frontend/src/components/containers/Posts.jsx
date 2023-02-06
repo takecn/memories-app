@@ -1,14 +1,16 @@
-import React, { memo, useReducer, useEffect, useState, useContext } from "react";
+import React, { memo, useReducer, useEffect, useState, useCallback, useContext } from "react";
 import {
   Container,
   Grid,
   Alert,
   Button,
 } from '@mui/material';
+// import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import { fetchPosts, postPost, putPost, deletePost } from "../../apis/posts";
-import { SessionContext } from "../providers/SessionProvider.jsx";
 import { REQUEST_STATE } from "../../constants";
 import { initialPostsState, postsActionTypes, postsReducer } from "../../reducers/posts";
+import { SessionContext } from "../providers/SessionProvider.jsx";
+import { LocationsMap } from "../presentations/LocationsMap.jsx";
 import { Home } from "../presentations/Home.jsx";
 import { LoginDialog } from '../presentations/LoginDialog.jsx';
 import { DeleteDialog } from '../presentations/DeleteDialog.jsx';
@@ -19,6 +21,31 @@ import { PostDialog } from '../presentations/PostDialog.jsx';
 import { CircularIndeterminate } from '../presentations/CircularIndeterminate.jsx';
 
 export const Posts = memo(() => {
+
+  // const { isLoaded } = useLoadScript({
+  //   googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+  //   // ここにAPIキーを入力します。今回は.envに保存しています。
+  //   // libraries,
+  // });
+
+  // const mapRef = useRef();
+  // const onMapLoad = useCallback((map) => {
+  //   mapRef.current = map;
+  // }, []);
+  // API読み込み後に再レンダーを引き起こさないため、useStateを使わず、useRefとuseCallbackを使っています。
+
+  // if (loadError) return "Error";
+  // if (!isLoaded) return "Loading...";
+
+  // const mapStyles = {
+  //   height: "100vh",
+  //   width: "100%"
+  // };
+
+  // const defaultCenter = {
+  //   lat: 41.3851, lng: 2.1734
+  // };
+
   const {
     sessionState,
     setSessionState,
@@ -48,6 +75,7 @@ export const Posts = memo(() => {
   const [errors, setErrors] = useState();
   const [memorableDay, setMemorableDay] = useState();
   const [location, setLocation] = useState();
+  // const [googleMapsApiKey, setGoogleMapsApiKey] = useState();
   const [tags, setTags] = useState();
   const [comment, setComment] = useState();
   // const [disclosureGroups, setDisclosureGroups] = useState();
@@ -60,10 +88,11 @@ export const Posts = memo(() => {
   const [newPostImagesPreviews, setNewPostImagesPreviews] = useState([]); // 入力フォームに追加した画像のパスを保持する．プレビュー表示に使用する．
   // const [reply, setReply] = useState();
 
-  const fetchPostList = () => {
+  const fetchPostList = useCallback(() => {
     dispatch({ type: postsActionTypes.FETCHING });
     fetchPosts()
-    .then((data) =>
+    .then((data) => {
+      // setGoogleMapsApiKey(data.google_maps_api_key);
       dispatch({
         type: postsActionTypes.FETCH_SUCCESS,
         payload: {
@@ -73,9 +102,10 @@ export const Posts = memo(() => {
           post_tags: data.post_tags,
           tags: data.tags,
         },
-      })
-    );
-  };
+      });
+    });
+  }, []);
+  // console.log(`"${googleMapsApiKey}"`);
 
   const postUserMap = new Map(postsState.userList.map((user) => [user.id, user]));
   const postMapMap = new Map(postsState.mapList.map((map) => [map.id, map]));
@@ -124,7 +154,7 @@ export const Posts = memo(() => {
         formData.append("images_blob_ids[]", blobId)
       )
     };
-    console.log(...formData.entries());
+    // console.log(...formData.entries());
     return formData
   };
 
@@ -230,49 +260,10 @@ export const Posts = memo(() => {
   };
 
   // 再レンダリングする．
-  useEffect(fetchPostList, [userState, postState.selectedPost, location, tags, postImages]);
+  useEffect(fetchPostList, [postState.selectedPost, postImages, location, tags]);
 
   return (
     <>
-      {/* ログインモーダル */}
-      {
-        sessionState.isOpenLoginDialog &&
-        !(sessionState.loginUser) &&
-        <LoginDialog
-          isOpen={sessionState.isOpenLoginDialog}
-          messages={sessionState.message}
-          errors={loginErrors}
-          onChangeUserName={(e) => setUserName(e.target.value)}
-          onChangeUserEmail={(e) => setUserEmail(e.target.value)}
-          onChangeUserPassword={(e) => setUserPassword(e.target.value)}
-          onClickLogin={login}
-          onClickGuestLogin={guestLogin}
-        />
-      }
-
-      {/* ログアウトモーダル */}
-      {
-        sessionState.isOpenLogoutDialog &&
-        <DeleteDialog
-          isOpen={sessionState.isOpenLogoutDialog}
-          session={sessionState.isOpenLogoutDialog}
-          onClose={() =>
-            setSessionState({
-              ...sessionState,
-              isOpenLogoutDialog: false,
-            })
-          }
-          onClickDelete={logout}
-          onClickCloseDelete={() =>
-            setSessionState({
-              ...sessionState,
-              isOpenLogoutDialog: false,
-            })
-          }
-        />
-      }
-
-      {/* 投稿一覧 */}
       {
         postsState.fetchState === REQUEST_STATE.LOADING ?
           <CircularIndeterminate />
@@ -307,6 +298,12 @@ export const Posts = memo(() => {
           >
             新規投稿する
           </Button>
+          {/* GoogleMap */}
+          {postsState.mapList.length > 0 &&
+            <LocationsMap maps={postsState.mapList} />
+          }
+          {/* <LocationsMap googleMapsApiKey={googleMapsApiKey} /> */}
+          {/* 投稿一覧 */}
           <Container>
             <Grid
               container
@@ -319,7 +316,7 @@ export const Posts = memo(() => {
               {
               postsState.postList.map((post) => {
                 return (
-                  <Grid item xs={12} md={12} key={post.id}>
+                  <Grid key={post.id} item xs={12} md={12}>
                     <Home
                       post={post}
                       postImages={post.post_images}
@@ -365,6 +362,44 @@ export const Posts = memo(() => {
             </Grid>
           </Container>
         </>
+      }
+
+      {/* ログインモーダル */}
+      {
+        sessionState.isOpenLoginDialog &&
+        !(sessionState.loginUser) &&
+        <LoginDialog
+          isOpen={sessionState.isOpenLoginDialog}
+          messages={sessionState.message}
+          errors={loginErrors}
+          onChangeUserName={(e) => setUserName(e.target.value)}
+          onChangeUserEmail={(e) => setUserEmail(e.target.value)}
+          onChangeUserPassword={(e) => setUserPassword(e.target.value)}
+          onClickLogin={login}
+          onClickGuestLogin={guestLogin}
+        />
+      }
+
+      {/* ログアウトモーダル */}
+      {
+        sessionState.isOpenLogoutDialog &&
+        <DeleteDialog
+          isOpen={sessionState.isOpenLogoutDialog}
+          session={sessionState.isOpenLogoutDialog}
+          onClose={() =>
+            setSessionState({
+              ...sessionState,
+              isOpenLogoutDialog: false,
+            })
+          }
+          onClickDelete={logout}
+          onClickCloseDelete={() =>
+            setSessionState({
+              ...sessionState,
+              isOpenLogoutDialog: false,
+            })
+          }
+        />
       }
 
       {/* 新規投稿モーダル */}
