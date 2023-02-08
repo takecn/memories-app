@@ -21,6 +21,12 @@ import ImageListItem from '@mui/material/ImageListItem';
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import Checkbox from '@mui/material/Checkbox';
+import Badge from '@mui/material/Badge';
+// import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
+// import Favorite from '@mui/icons-material/Favorite';
+// import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+// import BookmarkIcon from '@mui/icons-material/Bookmark';
 import styled from "styled-components";
 
 const CardMediaWrapper = styled.div`
@@ -48,8 +54,11 @@ export const Home = (props) => {
     user,
     map,
     tags,
+    favoriteState,
+    favoritesCount,
     onClickPost,
     onClickUser,
+    onClickFavorite,
   } = props;
 
   return (
@@ -125,9 +134,14 @@ export const Home = (props) => {
         </Stack>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="favorites">
-          <ThumbUpIcon />
-        </IconButton>
+        <Badge badgeContent={favoritesCount} color="secondary">
+          <Checkbox
+            icon={<ThumbUpIcon />}
+            checkedIcon={<ThumbUpIcon style={{color: "red"}} />}
+            checked={favoriteState}
+            onChange={onClickFavorite}
+          />
+        </Badge>
         <IconButton aria-label="bookmark">
           <BookmarkIcon />
         </IconButton>
@@ -170,6 +184,9 @@ Home.propTypes = {
       )
     })
   ).isRequired,
+  favoriteState: PropTypes.bool.isRequired,
+  favoritesCount: PropTypes.bool.isRequired,
   onClickPost: PropTypes.func.isRequired,
   onClickUser: PropTypes.func.isRequired,
+  onClickFavorite: PropTypes.func.isRequired,
 };
