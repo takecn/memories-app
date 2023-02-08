@@ -10,7 +10,12 @@ module Api
         if user&.authenticate(session_params[:password])
           session[:user_id] = user.id
           cookies.encrypted[:user_id] = { value: user.id, expires: 1.hour.from_now, secure: true }
-          render json: { user: current_user, message: "「#{user.user_name}」でログインしました．" }, status: :ok
+          if user.user_avatar.attached?
+            user_with_avatar = user.attributes.merge(user_avatar: url_for(user.user_avatar))
+          else
+            user_with_avatar = user.attributes.merge(user_avatar: nil)
+          end
+          render json: { user: user_with_avatar, message: "「#{user.user_name}」でログインしました．" }, status: :ok
         else
           if session_data.errors.present?
             render json: { error_messages: session_data.errors.full_messages }, status: :unprocessable_entity
@@ -25,7 +30,12 @@ module Api
         if user.present?
           session[:user_id] = user.id
           cookies.encrypted[:user_id] = { value: user.id, expires: 1.hour.from_now, secure: true }
-          render json: { user: current_user, message: "「#{current_user.user_name}」でログインしました．" }, status: :ok
+          if user.user_avatar.attached?
+            user_with_avatar = user.attributes.merge(user_avatar: url_for(user.user_avatar))
+          else
+            user_with_avatar = user.attributes.merge(user_avatar: nil)
+          end
+          render json: { user: user_with_avatar, message: "「#{user.user_name}」でログインしました．" }, status: :ok
         else
           password = SecureRandom.urlsafe_base64
           user = User.new(id: 25, user_name: "guest1", email: "guest1@guest.com", guest: true, password: password, password_confirmation: password)
