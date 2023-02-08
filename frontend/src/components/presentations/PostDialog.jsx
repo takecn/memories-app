@@ -10,9 +10,12 @@ import {
   FormControl,
   FormLabel,
   Button,
+  Checkbox,
+  Badge,
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 import { PostLocationMap } from "./PostLocationMap.jsx";
@@ -32,8 +35,11 @@ export const PostDialog = ({
   user,
   map,
   tags,
+  favoriteState,
+  favoritesCount,
   message,
   onClose,
+  onClickFavorite,
   onClickPostEdit,
   onClickPostDelete,
   }) => {
@@ -61,11 +67,10 @@ export const PostDialog = ({
         <div>
           <FormControl margin="normal">
             <FormLabel>どこ？</FormLabel>
-            {map.location}
-            {console.log(map.latitude)}
+            {map.location && map.location}
           </FormControl>
         </div>
-        <PostLocationMap map={map} />
+        {map.latitude && <PostLocationMap map={map} />}
         <div>
           <FormControl margin="normal">
             <FormLabel>画像</FormLabel>
@@ -97,18 +102,6 @@ export const PostDialog = ({
                 </TagWrapper>
               )}
             </span>
-          </FormControl>
-        </div>
-        <div>
-          <FormControl margin="normal">
-            <FormLabel>お気に入り</FormLabel>
-            {/* {user.guest === true ? `あり` : `なし`} */}
-          </FormControl>
-        </div>
-        <div>
-          <FormControl margin="normal">
-            <FormLabel>ブックマーク</FormLabel>
-            {/* {user.user_profile} */}
           </FormControl>
         </div>
         <div>
@@ -149,6 +142,14 @@ export const PostDialog = ({
         </div>
       </DialogContent>
       <DialogActions>
+        <Badge badgeContent={favoritesCount} color="secondary">
+          <Checkbox
+            icon={<ThumbUpIcon />}
+            checkedIcon={<ThumbUpIcon style={{color: "red"}} />}
+            checked={favoriteState}
+            onChange={onClickFavorite}
+          />
+        </Badge>
         <Button
           startIcon={<DeleteIcon />}
           onClick={onClickPostDelete}
@@ -200,8 +201,11 @@ PostDialog.propTypes = {
       )
     })
   ).isRequired,
+  favoriteState: PropTypes.bool.isRequired,
+  favoritesCount: PropTypes.bool.isRequired,
   message: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   onClickPostEdit: PropTypes.func.isRequired,
   onClickPostDelete: PropTypes.func.isRequired,
+  onClickFavorite: PropTypes.func.isRequired,
 };

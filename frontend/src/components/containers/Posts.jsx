@@ -5,10 +5,10 @@ import {
   Alert,
   Button,
 } from '@mui/material';
-// import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import { fetchPosts, postPost, putPost, deletePost } from "../../apis/posts";
+import { postFavorite, deleteFavorite } from "../../apis/favorites";
 import { REQUEST_STATE } from "../../constants";
-import { initialPostsState, postsActionTypes, postsReducer } from "../../reducers/posts";
+import { actionTypes, initialPostsState, initialFavoritesState, postsReducer, favoritesReducer } from "../../reducers/posts";
 import { SessionContext } from "../providers/SessionProvider.jsx";
 import { LocationsMap } from "../presentations/LocationsMap.jsx";
 import { Home } from "../presentations/Home.jsx";
@@ -21,31 +21,6 @@ import { PostDialog } from '../presentations/PostDialog.jsx';
 import { CircularIndeterminate } from '../presentations/CircularIndeterminate.jsx';
 
 export const Posts = memo(() => {
-
-  // const { isLoaded } = useLoadScript({
-  //   googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-  //   // ここにAPIキーを入力します。今回は.envに保存しています。
-  //   // libraries,
-  // });
-
-  // const mapRef = useRef();
-  // const onMapLoad = useCallback((map) => {
-  //   mapRef.current = map;
-  // }, []);
-  // API読み込み後に再レンダーを引き起こさないため、useStateを使わず、useRefとuseCallbackを使っています。
-
-  // if (loadError) return "Error";
-  // if (!isLoaded) return "Loading...";
-
-  // const mapStyles = {
-  //   height: "100vh",
-  //   width: "100%"
-  // };
-
-  // const defaultCenter = {
-  //   lat: 41.3851, lng: 2.1734
-  // };
-
   const {
     sessionState,
     setSessionState,
@@ -58,7 +33,8 @@ export const Posts = memo(() => {
     logout,
     } = useContext(SessionContext);
 
-  const [postsState, dispatch] = useReducer(postsReducer, initialPostsState);
+  const [postsState, postsDispatch] = useReducer(postsReducer, initialPostsState);
+  const [favoritesState, favoritesDispatch] = useReducer(favoritesReducer, initialFavoritesState);
   const [postState, setPostState] = useState({
     isHomePage: true,
     isOpenPostCreateDialog: false,
@@ -75,7 +51,6 @@ export const Posts = memo(() => {
   const [errors, setErrors] = useState();
   const [memorableDay, setMemorableDay] = useState();
   const [location, setLocation] = useState();
-  // const [googleMapsApiKey, setGoogleMapsApiKey] = useState();
   const [tags, setTags] = useState();
   const [comment, setComment] = useState();
   // const [disclosureGroups, setDisclosureGroups] = useState();
@@ -88,13 +63,13 @@ export const Posts = memo(() => {
   const [newPostImagesPreviews, setNewPostImagesPreviews] = useState([]); // 入力フォームに追加した画像のパスを保持する．プレビュー表示に使用する．
   // const [reply, setReply] = useState();
 
+  // postsレコードを取得する．
   const fetchPostList = useCallback(() => {
-    dispatch({ type: postsActionTypes.FETCHING });
+    postsDispatch({ type: actionTypes.FETCHING });
     fetchPosts()
     .then((data) => {
-      // setGoogleMapsApiKey(data.google_maps_api_key);
-      dispatch({
-        type: postsActionTypes.FETCH_SUCCESS,
+      postsDispatch({
+        type: actionTypes.FETCH_SUCCESS,
         payload: {
           posts: data.posts,
           users: data.users,
@@ -105,12 +80,42 @@ export const Posts = memo(() => {
       });
     });
   }, []);
-  // console.log(`"${googleMapsApiKey}"`);
 
+  // favoritesレコードを取得する．
+  const fetchFavoriteList = useCallback(() => {
+    fetchPosts()
+    .then((data) => {
+      favoritesDispatch({
+        type: actionTypes.FETCH_SUCCESS,
+        payload: {
+          favorites: data.favorites,
+          favoritesAll: data.favorites_all,
+        },
+      });
+    });
+  }, []);
+
+  // 各種配列にキーを設定する．投稿一覧Card, 投稿詳細モーダルにpropsで渡すための前処理．
   const postUserMap = new Map(postsState.userList.map((user) => [user.id, user]));
   const postMapMap = new Map(postsState.mapList.map((map) => [map.id, map]));
+  const postFavoriteMap = new Map(favoritesState.favoriteList.map((favorite) => [favorite.post_id, favorite]));
   const tagMap = new Map(postsState.tagList.map((tag) => [tag.id, tag]));
   const tagNameMap = new Map(postsState.tagList.map((tag) => [tag.id, tag.tag_name]));
+
+  // 当該投稿のタグを配列で取得する．
+  const postTags = (postId) => (
+    postsState.postTagList.filter(
+      (postTag) => postTag.post_id === postId
+    )
+    .map((postTag) => tagMap.get(postTag.tag_id))
+  );
+
+  // 当該投稿へのいいね数を取得する．
+  const favoritesCount = (postId) => (
+    favoritesState.favoriteListAll.filter(
+      (favorite) => favorite.post_id === postId
+    ).length
+  );
 
   // 入力フォームに追加した画像をプレビュー表示する．
   const previewPostImages = (e) => {
@@ -154,7 +159,6 @@ export const Posts = memo(() => {
         formData.append("images_blob_ids[]", blobId)
       )
     };
-    // console.log(...formData.entries());
     return formData
   };
 
@@ -188,6 +192,7 @@ export const Posts = memo(() => {
         setErrors(data.error_messages)
       }
     })
+    fetchPostList()
   };
 
   // 投稿更新をリクエストする．
@@ -213,10 +218,10 @@ export const Posts = memo(() => {
             selectedPost: data.post,
             message: data.message,
           })
-          setUserState({
-            ...userState,
-            selectedUser: sessionState.loginUser,
-          })
+          // setUserState({
+          //   ...userState,
+          //   selectedUser: sessionState.loginUser,
+          // })
           setErrors()
           setMemorableDay()
           setLocation()
@@ -232,6 +237,7 @@ export const Posts = memo(() => {
         }
       })
     }
+    fetchPostList()
   };
 
   // 投稿削除をリクエストする．
@@ -257,10 +263,49 @@ export const Posts = memo(() => {
       setPostImages([])
       setNewPostImagesPreviews([])
     })
+    fetchPostList()
   };
 
-  // 再レンダリングする．
-  useEffect(fetchPostList, [postState.selectedPost, postImages, location, tags]);
+  // お気に入り登録・解除する．
+  const favoriteCreateOrDelete = (id, e) => {
+    if (e.target.checked) {
+      postFavorite({postId: id})
+      .then((data) => {
+        setPostState(
+          postState.isOpenPostDialog ?
+            {...postState,
+            isOpenPostDialog: true,
+            message: data.message,
+            }
+          :
+            {...postState,
+              message: data.message,
+            }
+        )
+      })
+      fetchFavoriteList()
+    } else {
+      deleteFavorite({postId: id})
+      .then((data) => {
+        setPostState(
+          postState.isOpenPostDialog ?
+            {...postState,
+            isOpenPostDialog: true,
+            message: data.message,
+            }
+          :
+            {...postState,
+              message: data.message,
+            }
+        )
+      })
+      fetchFavoriteList()
+    }
+  }
+
+  // 再レンダリングする．sessionState.loginUserはログイン時にレンダリングするために指定している．
+  useEffect(fetchPostList, [sessionState.loginUser, postImages, location]); // , login, guestLogin, postState.selectedPost, postImages, location, tags
+  useEffect(fetchFavoriteList, [sessionState.loginUser]);
 
   return (
     <>
@@ -322,12 +367,9 @@ export const Posts = memo(() => {
                       postImages={post.post_images}
                       user={postUserMap.get(post.user_id)}
                       map={postMapMap.get(post.map_id)}
-                      tags={
-                        postsState.postTagList.filter(
-                          (postTag) => postTag.post_id === post.id
-                        )
-                        .map((postTag) => tagMap.get(postTag.tag_id))
-                      }
+                      tags={postTags(post.id)}
+                      favoriteState={Boolean(postFavoriteMap.get(post.id))}
+                      favoritesCount={favoritesCount(post.id)}
                       onClickPost={() => {
                         setPostState({
                           ...postState,
@@ -335,7 +377,7 @@ export const Posts = memo(() => {
                           selectedPost: post,
                           message: null,
                         })
-                        setPostImages(post.post_images)
+                        // setPostImages(post.post_images)
                         setUserState({
                           ...userState,
                           selectedUser: postUserMap.get(post.user_id),
@@ -353,6 +395,9 @@ export const Posts = memo(() => {
                         setSessionState({
                           message: null
                         })
+                      }}
+                      onClickFavorite={(e) => {
+                        favoriteCreateOrDelete(post.id, e)
                       }}
                     />
                   </Grid>
@@ -462,12 +507,9 @@ export const Posts = memo(() => {
           postImages={postState.selectedPost.post_images}
           user={userState.selectedUser}
           map={postMapMap.get(postState.selectedPost.map_id)}
-          tags={
-            postsState.postTagList.filter(
-              (postTag) => postTag.post_id === postState.selectedPost.id
-            )
-            .map((postTag) => tagMap.get(postTag.tag_id))
-          }
+          tags={postTags(postState.selectedPost.id)}
+          favoriteState={Boolean(postFavoriteMap.get(postState.selectedPost.id))}
+          favoritesCount={favoritesCount(postState.selectedPost.id)}
           message={postState.message}
           onClose={() =>
             setPostState({
@@ -475,6 +517,9 @@ export const Posts = memo(() => {
               isOpenPostDialog: false,
             })
           }
+          onClickFavorite={(e) => {
+            favoriteCreateOrDelete(postState.selectedPost.id, e)
+          }}
           onClickPostEdit={() => {
             setPostState({
               ...postState,
