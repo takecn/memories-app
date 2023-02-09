@@ -41,6 +41,7 @@ module Api
         tagss = Tag.all
         favoritess = current_user.favorites
         favoritess_all = Favorite.all #! 閲覧可能なpostに対応するfavoriteレコードだけ抽出すること．
+        bookmarkss = current_user.bookmarks
         #! users_with_avatarの取得はモデルメソッドに切り出す．
         users_with_avatar = userss.map do |user|
           if user.user_avatar.attached?
@@ -66,6 +67,7 @@ module Api
           tags: tagss,
           favorites: favoritess,
           favorites_all: favoritess_all,
+          bookmarks: bookmarkss,
         }, status: :ok
       end
 

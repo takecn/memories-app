@@ -3,15 +3,13 @@ module Api
     class BookmarksController < ApplicationController
       def create
         Bookmark.create(user_id: current_user.id, post_id: params[:post_id])
-        flash[:info] = "ブックマークしました！"
-        redirect_to request.referer
+        render json: { message: "ブックマークしました！" }, status: :created
       end
 
       def destroy
         bookmark = Bookmark.find_by(user_id: current_user.id, post_id: params[:post_id])
         bookmark.destroy
-        flash[:warning] = "ブックマークを解除しました．"
-        redirect_to request.referer
+        render json: { message: "ブックマークを解除しました．" }, status: :ok
       end
     end
   end

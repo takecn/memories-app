@@ -14,10 +14,11 @@ export const initialPostsState = {
   tagList: [],
 };
 
-export const initialFavoritesState = {
+export const initialFaviconsState = {
   fetchState: REQUEST_STATE.INITIAL,
   favoriteList: [],
   favoriteListAll: [],
+  bookmarkList: [],
 };
 
 export const postsReducer = (state, action) => {
@@ -41,7 +42,7 @@ export const postsReducer = (state, action) => {
   }
 };
 
-export const favoritesReducer = (state, action) => {
+export const faviconsReducer = (state, action) => {
   switch (action.type) {
     case actionTypes.FETCHING:
       return {
@@ -53,6 +54,7 @@ export const favoritesReducer = (state, action) => {
         fetchState: REQUEST_STATE.OK,
         favoriteList: action.payload.favorites,
         favoriteListAll: action.payload.favoritesAll,
+        bookmarkList: action.payload.bookmarks,
       };
     default:
       throw new Error();

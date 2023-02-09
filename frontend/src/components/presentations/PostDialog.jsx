@@ -16,6 +16,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 import { PostLocationMap } from "./PostLocationMap.jsx";
@@ -37,9 +38,11 @@ export const PostDialog = ({
   tags,
   favoriteState,
   favoritesCount,
+  bookmarkState,
   message,
   onClose,
   onClickFavorite,
+  onClickBookmark,
   onClickPostEdit,
   onClickPostDelete,
   }) => {
@@ -150,6 +153,12 @@ export const PostDialog = ({
             onChange={onClickFavorite}
           />
         </Badge>
+        <Checkbox
+          icon={<BookmarkIcon />}
+          checkedIcon={<BookmarkIcon style={{color: "blue"}} />}
+          checked={bookmarkState}
+          onChange={onClickBookmark}
+        />
         <Button
           startIcon={<DeleteIcon />}
           onClick={onClickPostDelete}
@@ -202,10 +211,12 @@ PostDialog.propTypes = {
     })
   ).isRequired,
   favoriteState: PropTypes.bool.isRequired,
-  favoritesCount: PropTypes.bool.isRequired,
+  favoritesCount: PropTypes.number.isRequired,
+  bookmarkState: PropTypes.bool.isRequired,
   message: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
+  onClickFavorite: PropTypes.func.isRequired,
+  onClickBookmark: PropTypes.func.isRequired,
   onClickPostEdit: PropTypes.func.isRequired,
   onClickPostDelete: PropTypes.func.isRequired,
-  onClickFavorite: PropTypes.func.isRequired,
 };

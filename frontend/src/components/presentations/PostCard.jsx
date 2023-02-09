@@ -47,7 +47,7 @@ const ItemWrapper = styled.span`
   padding: 3px;
 `;
 
-export const Home = (props) => {
+export const PostCard = (props) => {
   const {
     post,
     postImages,
@@ -56,9 +56,11 @@ export const Home = (props) => {
     tags,
     favoriteState,
     favoritesCount,
+    bookmarkState,
     onClickPost,
     onClickUser,
     onClickFavorite,
+    onClickBookmark,
   } = props;
 
   return (
@@ -142,9 +144,12 @@ export const Home = (props) => {
             onChange={onClickFavorite}
           />
         </Badge>
-        <IconButton aria-label="bookmark">
-          <BookmarkIcon />
-        </IconButton>
+        <Checkbox
+          icon={<BookmarkIcon />}
+          checkedIcon={<BookmarkIcon style={{color: "blue"}} />}
+          checked={bookmarkState}
+          onChange={onClickBookmark}
+        />
         <IconButton aria-label="chat">
           <ChatIcon />
         </IconButton>
@@ -153,7 +158,7 @@ export const Home = (props) => {
   );
 };
 
-Home.propTypes = {
+PostCard.propTypes = {
   post: PropTypes.objectOf(
     PropTypes.shape({
       id: PropTypes.number.isRequired,
@@ -185,8 +190,10 @@ Home.propTypes = {
     })
   ).isRequired,
   favoriteState: PropTypes.bool.isRequired,
-  favoritesCount: PropTypes.bool.isRequired,
+  favoritesCount: PropTypes.number.isRequired,
+  bookmarkState: PropTypes.bool.isRequired,
   onClickPost: PropTypes.func.isRequired,
   onClickUser: PropTypes.func.isRequired,
   onClickFavorite: PropTypes.func.isRequired,
+  onClickBookmark: PropTypes.func.isRequired,
 };
