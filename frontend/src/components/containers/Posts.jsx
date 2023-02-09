@@ -7,11 +7,18 @@ import {
 } from '@mui/material';
 import { fetchPosts, postPost, putPost, deletePost } from "../../apis/posts";
 import { postFavorite, deleteFavorite } from "../../apis/favorites";
+import { postBookmark, deleteBookmark } from "../../apis/bookmarks";
 import { REQUEST_STATE } from "../../constants";
-import { actionTypes, initialPostsState, initialFavoritesState, postsReducer, favoritesReducer } from "../../reducers/posts";
+import {
+  actionTypes,
+  initialPostsState,
+  initialFaviconsState,
+  postsReducer,
+  faviconsReducer,
+} from "../../reducers/posts";
 import { SessionContext } from "../providers/SessionProvider.jsx";
 import { LocationsMap } from "../presentations/LocationsMap.jsx";
-import { Home } from "../presentations/Home.jsx";
+import { PostCard } from "../presentations/PostCard.jsx";
 import { LoginDialog } from '../presentations/LoginDialog.jsx';
 import { DeleteDialog } from '../presentations/DeleteDialog.jsx';
 import { UserDialog } from '../presentations/UserDialog.jsx';
@@ -34,7 +41,7 @@ export const Posts = memo(() => {
     } = useContext(SessionContext);
 
   const [postsState, postsDispatch] = useReducer(postsReducer, initialPostsState);
-  const [favoritesState, favoritesDispatch] = useReducer(favoritesReducer, initialFavoritesState);
+  const [faviconsState, faviconsDispatch] = useReducer(faviconsReducer, initialFaviconsState);
   const [postState, setPostState] = useState({
     isHomePage: true,
     isOpenPostCreateDialog: false,
@@ -82,14 +89,15 @@ export const Posts = memo(() => {
   }, []);
 
   // favoritesレコードを取得する．
-  const fetchFavoriteList = useCallback(() => {
+  const fetchFaviconList = useCallback(() => {
     fetchPosts()
     .then((data) => {
-      favoritesDispatch({
+      faviconsDispatch({
         type: actionTypes.FETCH_SUCCESS,
         payload: {
           favorites: data.favorites,
           favoritesAll: data.favorites_all,
+          bookmarks: data.bookmarks,
         },
       });
     });
@@ -98,7 +106,8 @@ export const Posts = memo(() => {
   // 各種配列にキーを設定する．投稿一覧Card, 投稿詳細モーダルにpropsで渡すための前処理．
   const postUserMap = new Map(postsState.userList.map((user) => [user.id, user]));
   const postMapMap = new Map(postsState.mapList.map((map) => [map.id, map]));
-  const postFavoriteMap = new Map(favoritesState.favoriteList.map((favorite) => [favorite.post_id, favorite]));
+  const postFavoriteMap = new Map(faviconsState.favoriteList.map((favorite) => [favorite.post_id, favorite]));
+  const postBookmarkMap = new Map(faviconsState.bookmarkList.map((bookmark) => [bookmark.post_id, bookmark]));
   const tagMap = new Map(postsState.tagList.map((tag) => [tag.id, tag]));
   const tagNameMap = new Map(postsState.tagList.map((tag) => [tag.id, tag.tag_name]));
 
@@ -112,7 +121,7 @@ export const Posts = memo(() => {
 
   // 当該投稿へのいいね数を取得する．
   const favoritesCount = (postId) => (
-    favoritesState.favoriteListAll.filter(
+    faviconsState.favoriteListAll.filter(
       (favorite) => favorite.post_id === postId
     ).length
   );
@@ -283,7 +292,7 @@ export const Posts = memo(() => {
             }
         )
       })
-      fetchFavoriteList()
+      fetchFaviconList()
     } else {
       deleteFavorite({postId: id})
       .then((data) => {
@@ -299,13 +308,50 @@ export const Posts = memo(() => {
             }
         )
       })
-      fetchFavoriteList()
+      fetchFaviconList()
     }
-  }
+  };
+
+  // ブックマーク登録・解除する．
+  const bookmarkCreateOrDelete = (id, e) => {
+    if (e.target.checked) {
+      postBookmark({postId: id})
+      .then((data) => {
+        setPostState(
+          postState.isOpenPostDialog ?
+            {...postState,
+            isOpenPostDialog: true,
+            message: data.message,
+            }
+          :
+            {...postState,
+              message: data.message,
+            }
+        )
+      })
+      fetchFaviconList()
+    } else {
+      deleteBookmark({postId: id})
+      .then((data) => {
+        setPostState(
+          postState.isOpenPostDialog ?
+            {...postState,
+            isOpenPostDialog: true,
+            message: data.message,
+            }
+          :
+            {...postState,
+              message: data.message,
+            }
+        )
+      })
+      fetchFaviconList()
+    }
+  };
 
   // 再レンダリングする．sessionState.loginUserはログイン時にレンダリングするために指定している．
   useEffect(fetchPostList, [sessionState.loginUser, postImages, location]); // , login, guestLogin, postState.selectedPost, postImages, location, tags
-  useEffect(fetchFavoriteList, [sessionState.loginUser]);
+  useEffect(fetchFaviconList, [sessionState.loginUser]);
 
   return (
     <>
@@ -362,7 +408,7 @@ export const Posts = memo(() => {
               postsState.postList.map((post) => {
                 return (
                   <Grid key={post.id} item xs={12} md={12}>
-                    <Home
+                    <PostCard
                       post={post}
                       postImages={post.post_images}
                       user={postUserMap.get(post.user_id)}
@@ -370,6 +416,7 @@ export const Posts = memo(() => {
                       tags={postTags(post.id)}
                       favoriteState={Boolean(postFavoriteMap.get(post.id))}
                       favoritesCount={favoritesCount(post.id)}
+                      bookmarkState={Boolean(postBookmarkMap.get(post.id))}
                       onClickPost={() => {
                         setPostState({
                           ...postState,
@@ -398,6 +445,9 @@ export const Posts = memo(() => {
                       }}
                       onClickFavorite={(e) => {
                         favoriteCreateOrDelete(post.id, e)
+                      }}
+                      onClickBookmark={(e) => {
+                        bookmarkCreateOrDelete(post.id, e)
                       }}
                     />
                   </Grid>
@@ -510,6 +560,7 @@ export const Posts = memo(() => {
           tags={postTags(postState.selectedPost.id)}
           favoriteState={Boolean(postFavoriteMap.get(postState.selectedPost.id))}
           favoritesCount={favoritesCount(postState.selectedPost.id)}
+          bookmarkState={Boolean(postBookmarkMap.get(postState.selectedPost.id))}
           message={postState.message}
           onClose={() =>
             setPostState({
@@ -519,6 +570,9 @@ export const Posts = memo(() => {
           }
           onClickFavorite={(e) => {
             favoriteCreateOrDelete(postState.selectedPost.id, e)
+          }}
+          onClickBookmark={(e) => {
+            bookmarkCreateOrDelete(postState.selectedPost.id, e)
           }}
           onClickPostEdit={() => {
             setPostState({

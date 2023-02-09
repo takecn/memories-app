@@ -14,3 +14,6 @@ export const post = (postId) => `${DEFAULT_API_LOCALHOST}/posts/${postId}`;
 
 export const favorites = (postId) =>
   `${DEFAULT_API_LOCALHOST}/posts/${postId}/favorites`;
+
+export const bookmarks = (postId) =>
+  `${DEFAULT_API_LOCALHOST}/posts/${postId}/bookmarks`;
