@@ -8,6 +8,8 @@ import {
 import { fetchPosts, postPost, putPost, deletePost } from "../../apis/posts";
 import { postFavorite, deleteFavorite } from "../../apis/favorites";
 import { postBookmark, deleteBookmark } from "../../apis/bookmarks";
+import { postReply, deleteReply } from "../../apis/replies";
+
 import { REQUEST_STATE } from "../../constants";
 import {
   actionTypes,
@@ -56,7 +58,7 @@ export const Posts = memo(() => {
     selectedUser: null,
   });
   const [errors, setErrors] = useState();
-  const [memorableDay, setMemorableDay] = useState();
+  const [memorableDay, setMemorableDay] = useState("");
   const [location, setLocation] = useState();
   const [tags, setTags] = useState();
   const [comment, setComment] = useState();
@@ -68,7 +70,7 @@ export const Posts = memo(() => {
   const [beRemovedPostImagesBlobIds, setBeRemovedPostImagesBlobIds] = useState([]); // ActiveStorage::Blobのidを保持する．
   const [existingPostImagesPreviews, setExistingPostImagesPreviews] = useState([]); // ActiveStorageに保存済みの画像URLを保持する．プレビュー表示に使用する．
   const [newPostImagesPreviews, setNewPostImagesPreviews] = useState([]); // 入力フォームに追加した画像のパスを保持する．プレビュー表示に使用する．
-  // const [reply, setReply] = useState();
+  const [reply, setReply] = useState("");
 
   // postsレコードを取得する．
   const fetchPostList = useCallback(() => {
@@ -98,6 +100,7 @@ export const Posts = memo(() => {
           favorites: data.favorites,
           favoritesAll: data.favorites_all,
           bookmarks: data.bookmarks,
+          replies: data.replies,
         },
       });
     });
@@ -108,6 +111,7 @@ export const Posts = memo(() => {
   const postMapMap = new Map(postsState.mapList.map((map) => [map.id, map]));
   const postFavoriteMap = new Map(faviconsState.favoriteList.map((favorite) => [favorite.post_id, favorite]));
   const postBookmarkMap = new Map(faviconsState.bookmarkList.map((bookmark) => [bookmark.post_id, bookmark]));
+  // const postReplyMap = new Map(faviconsState.replyList.map((rep) => [rep.id, rep]));
   const tagMap = new Map(postsState.tagList.map((tag) => [tag.id, tag]));
   const tagNameMap = new Map(postsState.tagList.map((tag) => [tag.id, tag.tag_name]));
 
@@ -123,6 +127,13 @@ export const Posts = memo(() => {
   const favoritesCount = (postId) => (
     faviconsState.favoriteListAll.filter(
       (favorite) => favorite.post_id === postId
+    ).length
+  );
+
+  // 当該投稿へのいいね数を取得する．
+  const repliesCount = (postId) => (
+    faviconsState.replyList.filter(
+      (replyOf) => replyOf.post_id === postId
     ).length
   );
 
@@ -168,6 +179,7 @@ export const Posts = memo(() => {
         formData.append("images_blob_ids[]", blobId)
       )
     };
+    if (reply) formData.append("reply", reply);
     return formData
   };
 
@@ -189,7 +201,7 @@ export const Posts = memo(() => {
           selectedUser: sessionState.loginUser,
         })
         setErrors()
-        setMemorableDay()
+        setMemorableDay("")
         setLocation()
         setTags()
         setComment()
@@ -232,7 +244,7 @@ export const Posts = memo(() => {
           //   selectedUser: sessionState.loginUser,
           // })
           setErrors()
-          setMemorableDay()
+          setMemorableDay("")
           setLocation()
           setTags()
           setComment()
@@ -349,6 +361,37 @@ export const Posts = memo(() => {
     }
   };
 
+  // replyを投稿する．
+  const replyCreate = (postId) => {
+    if (reply) {
+      const formData = createFormData();
+
+      postReply({postId, formData})
+      .then((data) => {
+        setPostState({
+          ...postState,
+          isOpenPostDialog: true,
+          message: data.message,
+        })
+        setReply("")
+      })
+      fetchFaviconList()
+    }
+  };
+
+  // replyを削除する．
+  const replyDelete = (postId, replyId) => {
+    deleteReply({postId, replyId})
+    .then((data) => {
+      setPostState({
+        ...postState,
+        isOpenPostDialog: true,
+        message: data.message,
+      })
+    })
+    fetchFaviconList()
+  };
+
   // 再レンダリングする．sessionState.loginUserはログイン時にレンダリングするために指定している．
   useEffect(fetchPostList, [sessionState.loginUser, postImages, location]); // , login, guestLogin, postState.selectedPost, postImages, location, tags
   useEffect(fetchFaviconList, [sessionState.loginUser]);
@@ -417,6 +460,7 @@ export const Posts = memo(() => {
                       favoriteState={Boolean(postFavoriteMap.get(post.id))}
                       favoritesCount={favoritesCount(post.id)}
                       bookmarkState={Boolean(postBookmarkMap.get(post.id))}
+                      repliesCount={repliesCount(post.id)}
                       onClickPost={() => {
                         setPostState({
                           ...postState,
@@ -430,7 +474,8 @@ export const Posts = memo(() => {
                           selectedUser: postUserMap.get(post.user_id),
                         })
                         setSessionState({
-                          message: null
+                          ...sessionState,
+                          message: null,
                         })
                       }}
                       onClickUser={() => {
@@ -440,7 +485,8 @@ export const Posts = memo(() => {
                           selectedUser: postUserMap.get(post.user_id),
                         })
                         setSessionState({
-                          message: null
+                          ...sessionState,
+                          message: null,
                         })
                       }}
                       onClickFavorite={(e) => {
@@ -503,6 +549,7 @@ export const Posts = memo(() => {
         <PostCreateDialog
           isOpen={postState.isOpenPostCreateDialog}
           newPostImagesPreviews={newPostImagesPreviews}
+          memorableDay={memorableDay}
           errors={errors}
           onClose={() => {
             setPostState({
@@ -510,7 +557,7 @@ export const Posts = memo(() => {
               isOpenPostCreateDialog: false,
             })
             setErrors()
-            setMemorableDay()
+            setMemorableDay("")
             setLocation()
             setTags()
             setComment()
@@ -549,6 +596,10 @@ export const Posts = memo(() => {
       }
 
       {/* 投稿詳細モーダル */}
+      {/* {console.log(postsState.replyList)} */}
+      {/* {console.log(sessionState.loginUser)} */}
+      {/* {console.log(postUserMap)} */}
+      {/* {console.log(postsState.userList)} */}
       {
         postState.isOpenPostDialog &&
         <PostDialog
@@ -556,11 +607,16 @@ export const Posts = memo(() => {
           post={postState.selectedPost}
           postImages={postState.selectedPost.post_images}
           user={userState.selectedUser}
+          userList={postUserMap}
+          loginUser={sessionState.loginUser}
           map={postMapMap.get(postState.selectedPost.map_id)}
           tags={postTags(postState.selectedPost.id)}
           favoriteState={Boolean(postFavoriteMap.get(postState.selectedPost.id))}
           favoritesCount={favoritesCount(postState.selectedPost.id)}
           bookmarkState={Boolean(postBookmarkMap.get(postState.selectedPost.id))}
+          replyText={reply}
+          replies={faviconsState.replyList}
+          repliesCount={repliesCount(postState.selectedPost.id)}
           message={postState.message}
           onClose={() =>
             setPostState({
@@ -573,6 +629,13 @@ export const Posts = memo(() => {
           }}
           onClickBookmark={(e) => {
             bookmarkCreateOrDelete(postState.selectedPost.id, e)
+          }}
+          onChangeReply={(e) => setReply(e.target.value) && null}
+          onClickReplyCreate={() => {
+            replyCreate(postState.selectedPost.id)
+          }}
+          onClickReplyDelete={(replyId) => {
+            replyDelete(postState.selectedPost.id, replyId)
           }}
           onClickPostEdit={() => {
             setPostState({

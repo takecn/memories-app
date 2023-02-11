@@ -57,6 +57,7 @@ export const PostCard = (props) => {
     favoriteState,
     favoritesCount,
     bookmarkState,
+    repliesCount,
     onClickPost,
     onClickUser,
     onClickFavorite,
@@ -150,9 +151,17 @@ export const PostCard = (props) => {
           checked={bookmarkState}
           onChange={onClickBookmark}
         />
-        <IconButton aria-label="chat">
-          <ChatIcon />
-        </IconButton>
+        {repliesCount > 0 ?
+          <Badge badgeContent={repliesCount} color="secondary">
+            <IconButton aria-label="chat" style={{color: "green"}}>
+              <ChatIcon onClick={onClickPost} />
+            </IconButton>
+          </Badge>
+        :
+          <IconButton aria-label="chat">
+            <ChatIcon onClick={onClickPost} />
+          </IconButton>
+        }
       </CardActions>
     </Card>
   );
@@ -192,6 +201,7 @@ PostCard.propTypes = {
   favoriteState: PropTypes.bool.isRequired,
   favoritesCount: PropTypes.number.isRequired,
   bookmarkState: PropTypes.bool.isRequired,
+  repliesCount: PropTypes.number.isRequired,
   onClickPost: PropTypes.func.isRequired,
   onClickUser: PropTypes.func.isRequired,
   onClickFavorite: PropTypes.func.isRequired,

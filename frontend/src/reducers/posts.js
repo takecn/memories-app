@@ -19,6 +19,7 @@ export const initialFaviconsState = {
   favoriteList: [],
   favoriteListAll: [],
   bookmarkList: [],
+  replyList: [],
 };
 
 export const postsReducer = (state, action) => {
@@ -55,6 +56,7 @@ export const faviconsReducer = (state, action) => {
         favoriteList: action.payload.favorites,
         favoriteListAll: action.payload.favoritesAll,
         bookmarkList: action.payload.bookmarks,
+        replyList: action.payload.replies,
       };
     default:
       throw new Error();
