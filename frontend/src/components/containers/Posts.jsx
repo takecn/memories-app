@@ -5,11 +5,11 @@ import {
   Alert,
   Button,
 } from '@mui/material';
+import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import { fetchPosts, postPost, putPost, deletePost } from "../../apis/posts";
 import { postFavorite, deleteFavorite } from "../../apis/favorites";
 import { postBookmark, deleteBookmark } from "../../apis/bookmarks";
 import { postReply, deleteReply } from "../../apis/replies";
-
 import { REQUEST_STATE } from "../../constants";
 import {
   actionTypes,
@@ -28,6 +28,7 @@ import { PostCreateDialog } from '../presentations/PostCreateDialog.jsx';
 import { PostEditDialog } from '../presentations/PostEditDialog.jsx';
 import { PostDialog } from '../presentations/PostDialog.jsx';
 import { CircularIndeterminate } from '../presentations/CircularIndeterminate.jsx';
+import { PostImageGalleryDialog } from '../presentations/PostImageGalleryDialog.jsx';
 
 export const Posts = memo(() => {
   const {
@@ -46,6 +47,7 @@ export const Posts = memo(() => {
   const [faviconsState, faviconsDispatch] = useReducer(faviconsReducer, initialFaviconsState);
   const [postState, setPostState] = useState({
     isHomePage: true,
+    isOpenPostImageGalleryDialog: false,
     isOpenPostCreateDialog: false,
     isOpenPostDialog: false,
     isOpenPostEditDialog: false,
@@ -432,11 +434,23 @@ export const Posts = memo(() => {
           >
             新規投稿する
           </Button>
+          <Button
+            variant="outlined"
+            startIcon={<PhotoLibraryIcon />}
+            onClick={() =>
+              setPostState({
+                ...postState,
+                isOpenPostImageGalleryDialog: true,
+                message: null,
+              })
+            }
+          >
+            ギャラリーを開く
+          </Button>
           {/* GoogleMap */}
           {postsState.mapList.length > 0 &&
             <LocationsMap maps={postsState.mapList} />
           }
-          {/* <LocationsMap googleMapsApiKey={googleMapsApiKey} /> */}
           {/* 投稿一覧 */}
           <Container>
             <Grid
@@ -503,6 +517,55 @@ export const Posts = memo(() => {
             </Grid>
           </Container>
         </>
+      }
+
+      {/* 画像一覧モーダル */}
+      {
+        postState.isOpenPostImageGalleryDialog &&
+        <PostImageGalleryDialog
+          isOpen={postState.isOpenPostImageGalleryDialog}
+          // post={postState.selectedPost}
+          // postImages={postState.selectedPost.post_images}
+          postList={postsState.postList}
+          // user={userState.selectedUser}
+          mapList={postMapMap}
+          userList={postUserMap}
+          onClose={() => {
+            setPostState({
+              ...postState,
+              isOpenPostImageGalleryDialog: false,
+            })
+          }}
+          onClickPost={(post) => {
+            setPostState({
+              ...postState,
+              isOpenPostDialog: true,
+              selectedPost: post,
+              message: null,
+            })
+            // setPostImages(post.post_images)
+            setUserState({
+              ...userState,
+              selectedUser: postUserMap.get(post.user_id),
+            })
+            setSessionState({
+              ...sessionState,
+              message: null,
+            })
+          }}
+          onClickUser={(user) => {
+            setUserState({
+              ...userState,
+              isOpenUserDialog: true,
+              selectedUser: user,
+              // selectedUser: postUserMap.get(post.user_id),
+            })
+            setSessionState({
+              ...sessionState,
+              message: null,
+            })
+          }}
+        />
       }
 
       {/* ログインモーダル */}
