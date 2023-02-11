@@ -34,6 +34,7 @@ module Api
         maps = posts_maps.compact_blank.uniq
         #! gon.places = Map.where(id: maps.map(&:id))
 
+        #! 以下，暫定的に全データを送信している．開発が進んだら，適切に絞り込む．
         postss = Post.all.order(created_at: :desc)
         userss = User.all
         mapss = Map.all
@@ -42,6 +43,8 @@ module Api
         favoritess = current_user.favorites
         favoritess_all = Favorite.all #! 閲覧可能なpostに対応するfavoriteレコードだけ抽出すること．
         bookmarkss = current_user.bookmarks
+        repliess = Reply.all
+
         #! users_with_avatarの取得はモデルメソッドに切り出す．
         users_with_avatar = userss.map do |user|
           if user.user_avatar.attached?
@@ -68,6 +71,7 @@ module Api
           favorites: favoritess,
           favorites_all: favoritess_all,
           bookmarks: bookmarkss,
+          replies: repliess,
         }, status: :ok
       end
 

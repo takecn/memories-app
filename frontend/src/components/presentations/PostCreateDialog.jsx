@@ -23,6 +23,7 @@ import PropTypes from 'prop-types';
 export const PostCreateDialog = ({
   isOpen,
   newPostImagesPreviews,
+  // memorableDay,
   errors,
   onClose,
   onChangeMemorableDay,
@@ -126,6 +127,7 @@ export const PostCreateDialog = ({
         <TextField
           onChange={onChangeMemorableDay}
           label="いつ？"
+          // value={memorableDay}
           type="date"
           fullWidth
           variant="outlined"
@@ -184,6 +186,7 @@ export const PostCreateDialog = ({
 PostCreateDialog.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   newPostImagesPreviews: PropTypes.arrayOf(PropTypes.string).isRequired,
+  // memorableDay: PropTypes.string.isRequired,
   errors: PropTypes.arrayOf(PropTypes.string).isRequired,
   onClose: PropTypes.func.isRequired,
   onChangeMemorableDay: PropTypes.func.isRequired,

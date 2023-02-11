@@ -9,19 +9,37 @@ import {
   Avatar,
   FormControl,
   FormLabel,
-  Button,
+  TextField,
+  IconButton,
   Checkbox,
   Badge,
+  Paper,
 } from "@mui/material";
+import EventIcon from '@mui/icons-material/Event';
+import WhereToVoteIcon from '@mui/icons-material/WhereToVote';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import SendIcon from '@mui/icons-material/Send';
 import PropTypes from 'prop-types';
+
+import ChatIcon from '@mui/icons-material/Chat';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+// import AccordionActions from '@mui/material/AccordionActions';
+
+import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 import styled from "styled-components";
 import { PostLocationMap } from "./PostLocationMap.jsx";
+// import { PostReplies } from "./PostReplies.jsx";
+import { PostReply } from "./PostReply.jsx";
 
-const TagWrapper = styled.span`
+const ItemWrapper = styled.span`
   background-color: #e8f8f8;
   border: solid;
   border-radius: 50% 20% / 10% 40%;
@@ -34,18 +52,32 @@ export const PostDialog = ({
   post,
   postImages,
   user,
+  userList,
+  loginUser,
   map,
   tags,
   favoriteState,
   favoritesCount,
   bookmarkState,
+  replyText,
+  replies,
+  repliesCount,
   message,
   onClose,
   onClickFavorite,
   onClickBookmark,
+  onChangeReply,
+  onClickReplyCreate,
+  onClickReplyDelete,
   onClickPostEdit,
   onClickPostDelete,
   }) => {
+
+  // 投稿投稿へのreplyのみ取得する．
+  const postReplies = replies.filter((reply) =>
+    reply.post_id === post.id
+  );
+
   return (
     <Dialog open={isOpen} onClose={onClose}>
       {message &&
@@ -54,59 +86,59 @@ export const PostDialog = ({
         </Stack>
       }
       <DialogTitle>
-        {user &&
-          <Stack direction="row">
-          <Avatar alt={user.user_name} src={user.user_avatar} style={{marginRight: "10px"}} />
-          {user.user_name}
-        </Stack>}
+        <Stack direction="row">
+          {user &&
+            <Stack direction="row">
+              <Avatar alt={user.user_name} src={user.user_avatar} style={{marginRight: "10px"}} />
+              {user.user_name}
+            </Stack>
+          }
+        </Stack>
       </DialogTitle>
       <DialogContent>
-        <div>
-          <FormControl margin="normal">
-            <FormLabel>コメント</FormLabel>
-            {post.comment}
-          </FormControl>
-        </div>
-        <div>
-          <FormControl margin="normal">
-            <FormLabel>どこ？</FormLabel>
-            {map.location && map.location}
-          </FormControl>
-        </div>
+        <FormControl margin="normal">
+          <FormLabel>コメント</FormLabel>
+          {post.comment}
+        </FormControl>
         {map.latitude && <PostLocationMap map={map} />}
-        <div>
-          <FormControl margin="normal">
-            <FormLabel>画像</FormLabel>
-            <span>
-              {postImages &&
-                postImages.map((image) =>
-                  <span key={image.id}>
-                    <img alt="post_images" src={image} height="100" style={{ marginRight: "10px"}} />
-                  </span>
-                )
-              }
+        <FormControl margin="normal">
+          <span>
+            {postImages &&
+              postImages.map((image) =>
+                <span key={image.id}>
+                  <img alt="post_images" src={image} height="100" style={{ marginRight: "10px"}} />
+                </span>
+              )
+            }
+          </span>
+        </FormControl>
+        <FormControl margin="normal">
+          <Stack direction="row">
+            <EventIcon />
+            <span>いつ？
+              <ItemWrapper>
+                {post.memorized_on ? `${post.memorized_on}`.slice(0, 14) : "unknown"}
+              </ItemWrapper>
             </span>
-          </FormControl>
-        </div>
-        <div>
-          <FormControl margin="normal">
-            <FormLabel>いつ？</FormLabel>
-            {post.memorized_on}
-          </FormControl>
-        </div>
-        <div>
-          <FormControl margin="normal">
-            <FormLabel>タグ</FormLabel>
-            <span>
-              {tags.map((tag) =>
-                tag &&
-                <TagWrapper key={tag.id}>
-                  {tag.tag_name}
-                </TagWrapper>
-              )}
+            <WhereToVoteIcon />
+            <span>どこ？
+              <ItemWrapper>
+                {map.location ? map.location : "unknown"}
+              </ItemWrapper>
             </span>
-          </FormControl>
-        </div>
+          </Stack>
+        </FormControl>
+        <Stack direction="row">
+          <LocalOfferIcon />タグ
+          <span>
+            {tags.map((tag) =>
+              tag &&
+              <ItemWrapper key={tag.id}>
+                {tag.tag_name}
+              </ItemWrapper>
+            )}
+          </span>
+        </Stack>
         <div>
           <FormControl margin="normal">
             <FormLabel>公開先グループ（グループアイコンとグループ名）</FormLabel>
@@ -137,12 +169,6 @@ export const PostDialog = ({
             {`${post.updated_at}`.slice(0, 10)}
           </FormControl>
         </div>
-        <div>
-          <FormControl margin="normal">
-            <FormLabel>リプライ</FormLabel>
-            {/* {user.user_profile} */}
-          </FormControl>
-        </div>
       </DialogContent>
       <DialogActions>
         <Badge badgeContent={favoritesCount} color="secondary">
@@ -159,20 +185,82 @@ export const PostDialog = ({
           checked={bookmarkState}
           onChange={onClickBookmark}
         />
-        <Button
-          startIcon={<DeleteIcon />}
+        <IconButton
+          // startIcon={<DeleteIcon />}
           onClick={onClickPostDelete}
         >
-          削除する
-        </Button>
-        <Button
+          {/* 削除する */}
+          <DeleteIcon />
+        </IconButton>
+        <IconButton
           variant="outlined"
-          startIcon={<EditIcon />}
+          // startIcon={<EditIcon />}
           onClick={onClickPostEdit}
           aria-hidden="true"
         >
-          編集する
-        </Button>
+          <EditIcon />
+          {/* 編集する */}
+        </IconButton>
+      </DialogActions>
+      <DialogActions>
+        <FormControl fullWidth margin="none">
+          <Accordion elevation={5}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              {repliesCount > 0 ?
+                <Badge badgeContent={repliesCount} color="secondary">
+                  <ChatIcon  style={{color: "green"}}  />
+                </Badge>
+              :
+                <ChatIcon />
+              }
+              <Typography>__投稿にコメントしよう！</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Stack direction="row">
+                <TextField
+                  onChange={onChangeReply}
+                  label="コメントしよう！"
+                  type="text"
+                  value={replyText}
+                  multiline
+                  fullWidth
+                  variant="standard"
+                  margin="normal"
+                />
+                <IconButton
+                  type="submit"
+                  onClick={onClickReplyCreate}
+                  variant="standard"
+                >
+                  <SendIcon />
+                </IconButton>
+              </Stack>
+              <Paper>
+                {postReplies &&
+                  postReplies.map((reply) => {
+                    // 投稿者を取得する．
+                    const replyUser = userList.get(reply.user_id);
+
+                    return (
+                      <div key={reply.id}>
+                        <PostReply
+                          replyUser={replyUser}
+                          loginUser={loginUser}
+                          reply={reply}
+                          onClickReplyDelete={onClickReplyDelete}
+                        />
+                      </div>
+                    )
+                  })
+                }
+              </Paper>
+            </AccordionDetails>
+          </Accordion>
+        </FormControl>
       </DialogActions>
     </Dialog>
   )
@@ -195,6 +283,8 @@ PostDialog.propTypes = {
       user_avatar: PropTypes.string.isRequired,
     })
   ).isRequired,
+  userList: PropTypes.arrayOf(PropTypes.string).isRequired,
+  loginUser: PropTypes.objectOf(PropTypes.string).isRequired,
   map: PropTypes.objectOf(
     PropTypes.shape({
       location: PropTypes.string.isRequired,
@@ -213,10 +303,16 @@ PostDialog.propTypes = {
   favoriteState: PropTypes.bool.isRequired,
   favoritesCount: PropTypes.number.isRequired,
   bookmarkState: PropTypes.bool.isRequired,
+  replyText: PropTypes.string.isRequired,
+  replies: PropTypes.arrayOf(PropTypes.string).isRequired,
+  repliesCount: PropTypes.number.isRequired,
   message: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
   onClickFavorite: PropTypes.func.isRequired,
   onClickBookmark: PropTypes.func.isRequired,
+  onChangeReply: PropTypes.func.isRequired,
+  onClickReplyCreate: PropTypes.func.isRequired,
+  onClickReplyDelete: PropTypes.func.isRequired,
   onClickPostEdit: PropTypes.func.isRequired,
   onClickPostDelete: PropTypes.func.isRequired,
 };
