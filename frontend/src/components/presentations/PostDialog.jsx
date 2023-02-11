@@ -14,6 +14,10 @@ import {
   Checkbox,
   Badge,
   Paper,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
 } from "@mui/material";
 import EventIcon from '@mui/icons-material/Event';
 import WhereToVoteIcon from '@mui/icons-material/WhereToVote';
@@ -23,20 +27,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import SendIcon from '@mui/icons-material/Send';
-import PropTypes from 'prop-types';
-
 import ChatIcon from '@mui/icons-material/Chat';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-// import AccordionActions from '@mui/material/AccordionActions';
-
-import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import PropTypes from 'prop-types';
 import styled from "styled-components";
 import { PostLocationMap } from "./PostLocationMap.jsx";
-// import { PostReplies } from "./PostReplies.jsx";
 import { PostReply } from "./PostReply.jsx";
 
 const ItemWrapper = styled.span`
@@ -242,6 +237,7 @@ export const PostDialog = ({
               <Paper>
                 {postReplies &&
                   postReplies.map((reply) => {
+
                     // 投稿者を取得する．
                     const replyUser = userList.get(reply.user_id);
 
