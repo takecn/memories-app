@@ -1,3 +1,30 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  namespace :api do
+    namespace :v1 do
+      root to: "posts#home"
+
+      get "/login", to: "sessions#new"
+      post "/login", to: "sessions#create"
+      get "/guest_login", to: "sessions#guest_login"
+      delete "/logout", to: "sessions#destroy"
+
+      namespace :admin do
+        resources :users
+      end
+
+      get "/home", to: "posts#home"
+
+      resources :posts do
+        resource :favorites, only: [:create, :destroy]
+        resource :bookmarks, only: [:create, :destroy]
+        resources :replies, only: [:create, :destroy]
+      end
+
+      resources :groups, except: :destroy do
+        resources :group_users, only: [:create, :update, :destroy]
+      end
+
+      resources :notices, only: [:index, :update]
+    end
+  end
 end
